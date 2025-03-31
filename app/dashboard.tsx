@@ -46,7 +46,7 @@ const DashboardScreen = () => {
   );
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar barStyle="light-content" backgroundColor="#E53E3E" />
 
       {/* This view acts as a spacer with the exact height of the status bar */}
@@ -117,12 +117,12 @@ const DashboardScreen = () => {
 
       {/* Floating + Button */}
       <TouchableOpacity
-        onPress={() => router.push("/create")}
+        onPress={() => router.push("/CreateScreen")}
         className="absolute bottom-8 right-8 bg-red-500 rounded-full p-4 shadow-md"
       >
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
