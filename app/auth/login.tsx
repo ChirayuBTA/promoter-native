@@ -153,19 +153,6 @@ const LoginScreen = () => {
               <Text className="text-red-500 font-medium">Contact Support</Text>
             </Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity
-            className="flex-row justify-center items-center py-2"
-            activeOpacity={0.7}
-            onPress={router.push({
-              pathname: "/dashboard",
-            })}
-          >
-            <Ionicons name="help-circle-outline" size={18} color="#6b7280" />
-            <Text className="text-sm text-gray-500 ml-1">
-              Need help?{" "}
-              <Text className="text-red-500 font-medium">Contact Support</Text>
-            </Text>
-          </TouchableOpacity> */}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -37,8 +37,8 @@ const OtpScreen = () => {
         // Simulating OTP verification API
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
-        // // Navigate to Dashboard or Home
-        // router.replace("/dashboard");
+        // Navigate to Dashboard or Home
+        router.replace("/dashboard");
       } catch (error) {
         Alert.alert("Error", "Failed to verify OTP. Please try again.");
       } finally {
