@@ -9,20 +9,25 @@ import { apiUrl } from "@/lib/apiConfig";
 
 export const api = {
   sendOTP: async function (body: ISendOTPRequestBody) {
+    console.log("body-", body);
+    console.log("JSON.stringify(body)-", JSON.stringify(body));
+    const headers = await authHeaders();
+
     const reqOptions = {
       method: "POST",
       body: JSON.stringify(body),
       credentials: "include" as RequestCredentials,
-      headers: authHeaders(),
+      headers: headers,
     };
     return fetch(`${apiUrl}/auth/send-otp`, reqOptions).then(handleResponse);
   },
   verifyOTP: async function (body: IVerifyOTPRequestBody) {
+    const headers = await authHeaders();
     const reqOptions = {
       method: "POST",
       body: JSON.stringify(body),
       credentials: "include" as RequestCredentials,
-      headers: authHeaders(),
+      headers: headers,
     };
     return fetch(`${apiUrl}/auth/verify-otp`, reqOptions).then(handleResponse);
   },
@@ -47,23 +52,26 @@ export const api = {
     return fetch(`${apiUrl}/app/uploadImages`, reqOptions).then(handleResponse);
   },
   getCities: async function (query: any) {
+    const headers = await authHeaders();
     return fetch(`${apiUrl}/app/getAllCities?${queryString(query)}`, {
-      headers: authHeaders(),
+      headers: headers,
       cache: "no-store",
     }).then(handleResponse);
   },
   getSocities: async function (query: any) {
+    const headers = await authHeaders();
     return fetch(
       `${apiUrl}/app/getAllActivityLocations?${queryString(query)}`,
       {
-        headers: authHeaders(),
+        headers: headers,
         cache: "no-store",
       }
     ).then(handleResponse);
   },
   getSocityById: async function (id: string) {
+    const headers = await authHeaders();
     return fetch(`${apiUrl}/soc/${id}`, {
-      headers: authHeaders(),
+      headers: headers,
       cache: "no-store",
     }).then(handleResponse);
   },
@@ -77,8 +85,9 @@ export const api = {
   //   ).then(handleResponse);
   // },
   getDashboardData: async function (query: any) {
+    const headers = await authHeaders();
     return fetch(`${apiUrl}/app/getDashboardData?${queryString(query)}`, {
-      headers: authHeaders(),
+      headers: headers,
       cache: "no-store",
     }).then(handleResponse);
   },

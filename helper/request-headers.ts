@@ -1,7 +1,17 @@
 import { x_api_key } from "@/lib/apiConfig";
+import {
+  getAuthValue,
+  isAuthenticated,
+  clearAuthData,
+} from "@/utils/authStorage";
 
-export function authHeaders(isMultipartData: boolean = false): HeadersInit {
-  const token = localStorage.getItem("token");
+export async function authHeaders(
+  isMultipartData: boolean = false
+): Promise<HeadersInit> {
+  // const token = localStorage.getItem("token");
+  const token = await getAuthValue("token");
+  console.log("token--", token);
+
   return {
     "x-api-key": x_api_key,
     Authorization: `Bearer ${token}`,
@@ -13,7 +23,8 @@ export function authHeaders(isMultipartData: boolean = false): HeadersInit {
   };
 }
 export function imageHeaders(isMultipartData: boolean = false): HeadersInit {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
+  const token = getAuthValue("token");
   return {
     "x-api-key": x_api_key,
     Authorization: `Bearer ${token}`,

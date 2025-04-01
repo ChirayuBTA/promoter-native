@@ -2,7 +2,7 @@ export async function handleResponse(response: Response) {
   return response.text().then((text) => {
     const data = text && JSON.parse(text);
     if (data.message === "Unauthorized: Invalid token.") {
-      localStorage.clear();
+      // localStorage.clear();
       window.location.href = "/";
     }
 

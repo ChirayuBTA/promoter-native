@@ -13,6 +13,9 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { api } from "@/utils/api"; // Import API for OTP verification
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storeAuthData } from "@/utils/authStorage";
 
 const OtpScreen = () => {
   const { phoneNumber } = useLocalSearchParams();
@@ -20,6 +23,8 @@ const OtpScreen = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resendTimer, setResendTimer] = useState<number>(30);
   const router = useRouter();
+
+  const phone = Array.isArray(phoneNumber) ? phoneNumber[0] : phoneNumber;
 
   // Countdown Timer for Resend OTP
   useEffect(() => {
@@ -34,13 +39,27 @@ const OtpScreen = () => {
     if (otp.length === 6) {
       setIsLoading(true);
       try {
-        // Simulating OTP verification API
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Call the verifyOTP API
+        const response = await api.verifyOTP({ phone, otp });
+        console.log("response--", response);
 
-        // Navigate to Dashboard or Home
-        router.replace("/dashboard");
+        // If OTP is verified successfully
+        if (response.success) {
+          // Store required values using our utility
+          await storeAuthData({
+            projectId: response.promoter.projectIds[0],
+            promoterId: response.promoter.id,
+            vendorId: response.promoter.vendorId,
+            token: response.token,
+          });
+
+          router.replace("/location");
+        } else {
+          Alert.alert("Invalid OTP", "The OTP you entered is incorrect.");
+        }
       } catch (error) {
         Alert.alert("Error", "Failed to verify OTP. Please try again.");
+        console.error("Error verifying OTP:", error);
       } finally {
         setIsLoading(false);
       }

@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { api } from "@/utils/api"; // Import the API
 
 const LoginScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -25,17 +26,24 @@ const LoginScreen = () => {
     if (phoneNumber.length === 10) {
       setIsLoading(true);
 
-      // Simulate API call
       try {
-        // Simulating network request
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Call the API to send OTP
+        const response = await api.sendOTP({ phone: phoneNumber });
+        console.log("response---");
 
-        router.push({
-          pathname: "/auth/otp",
-          params: { phoneNumber },
-        });
+        if (response.success) {
+          // If successful, navigate to the OTP verification screen
+          router.push({
+            pathname: "/auth/otp",
+            params: { phoneNumber },
+          });
+        } else {
+          // If the response is not successful, show the error message
+          Alert.alert("Error", response.message || "Failed to send OTP.");
+        }
       } catch (error) {
-        Alert.alert("Error", "Failed to send OTP. Please try again.");
+        Alert.alert("Error", "Something went wrong. Please try again.");
+        console.error("Error sending OTP:", error);
       } finally {
         setIsLoading(false);
       }
@@ -92,8 +100,8 @@ const LoginScreen = () => {
                 placeholderTextColor="#A0A0A0"
                 maxLength={10}
                 value={phoneNumber}
-                onChangeText={(text) =>
-                  setPhoneNumber(text.replace(/[^0-9]/g, ""))
+                onChangeText={
+                  (text) => setPhoneNumber(text.replace(/[^0-9]/g, "")) // Ensure only numbers
                 }
               />
               {phoneNumber.length > 0 && (
@@ -123,7 +131,6 @@ const LoginScreen = () => {
             )}
           </TouchableOpacity>
 
-          {/* Progress Indicator */}
           {/* Progress Indicator */}
           <View className="flex-row justify-center mt-10 mb-6">
             <View className="flex-row items-center space-x-2">
