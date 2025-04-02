@@ -10,8 +10,8 @@ export default function Layout() {
       {/* Stack with all screens */}
       <Stack
         screenOptions={{
-          headerShown: true, // Hide default headers
-          header: () => <CustomHeader />,
+          headerShown: false, // Hide default headers
+          // header: () => <CustomHeader />,
         }}
       />
       {/* Status bar configuration */}
