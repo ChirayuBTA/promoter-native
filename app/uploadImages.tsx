@@ -36,9 +36,16 @@ const CreateScreen = () => {
 
   // Handle selecting multiple images from the gallery
   const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access gallery is required.");
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      // mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true, // Enable multiple selection
+      allowsEditing: false,
       quality: 0.7,
     });
 
@@ -50,8 +57,14 @@ const CreateScreen = () => {
 
   // Handle taking multiple photos and appending them
   const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      alert("Camera permission is required to take photos.");
+      return;
+    }
+
     const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 0.7,
     });
 

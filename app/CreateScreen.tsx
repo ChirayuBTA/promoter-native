@@ -61,9 +61,14 @@ const CreateScreen = () => {
 
   // Handle Image Selection / Capture
   const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access gallery is required.");
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false, // Disable cropping
       quality: 0.7,
     });
 
@@ -74,8 +79,14 @@ const CreateScreen = () => {
 
   // Handle Taking a Picture
   const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      alert("Camera permission is required to take photos.");
+      return;
+    }
+
     const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
+      allowsEditing: false, // Disable cropping
       quality: 0.7,
     });
 
