@@ -117,16 +117,13 @@ const CreateScreen = () => {
   };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Ensure header is fixed at the top */}
-      <View className="absolute top-0 left-0 right-0 z-10">
-        <CustomHeader />
-      </View>
+      <CustomHeader />
 
-      {/* Content inside SafeAreaView */}
-      <SafeAreaView className="flex-1 mt-[60px]">
+      {/* Main Card */}
+      <View className="bg-white mx-4 my-4 rounded-3xl shadow-md p-6">
         <View className="mx-4 my-4 rounded-3xl p-6">
           {/* Header */}
           <Text className="text-2xl font-bold text-center text-red-500 mb-6">
@@ -137,7 +134,7 @@ const CreateScreen = () => {
           <Text className="text-sm font-medium text-gray-700 mb-2">
             Select Photos
           </Text>
-          <View className="flex-row space-x-4 mb-4">
+          <View className="flex-row gap-4 space-x-4 mb-4">
             {/* Select from Gallery */}
             <TouchableOpacity
               onPress={pickImages}
@@ -203,8 +200,8 @@ const CreateScreen = () => {
             <Text className="text-gray-700 text-lg font-medium">Cancel</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 

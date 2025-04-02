@@ -98,25 +98,11 @@ const DashboardScreen = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView
+      className="flex-1 bg-gray-100"
+      style={{ paddingTop: statusBarHeight }}
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      {/* <View style={{ height: statusBarHeight, backgroundColor: "#FFFFFF" }} /> */}
-
-      {/* Header with Logo and Navigation */}
-      {/* <View className="flex-row justify-between items-center px-6 py-4 bg-white">
-        <View className="flex-row items-center">
-          <Text className="text-3xl font-bold">DIRECT</Text>
-          <Text className="text-3xl font-bold text-red-600">X</Text>
-        </View>
-        <View className="flex-row">
-          <TouchableOpacity className="mr-4">
-            <Ionicons name="home-outline" size={28} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="menu" size={28} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View> */}
 
       <CustomHeader />
 
