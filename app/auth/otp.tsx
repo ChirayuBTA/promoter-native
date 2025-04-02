@@ -15,7 +15,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { api } from "@/utils/api"; // Import API for OTP verification
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { storeAuthData } from "@/utils/authStorage";
+import { storeAuthData } from "@/utils/storage";
 
 const OtpScreen = () => {
   const { phoneNumber } = useLocalSearchParams();

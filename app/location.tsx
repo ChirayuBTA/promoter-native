@@ -19,7 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import { api } from "@/utils/api";
-import { getAuthValue, storeAuthData, storeLocData } from "@/utils/authStorage";
+import { getAuthValue, storeAuthData, storeLocData } from "@/utils/storage";
 import { useRouter } from "expo-router";
 import CustomHeader from "@/components/CustomHeader";
 

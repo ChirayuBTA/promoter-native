@@ -14,7 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "../utils/api"; // Import API methods
-import { getAuthValue, getLocData, getLocValue } from "@/utils/authStorage";
+import { getAuthValue, getLocData, getLocValue } from "@/utils/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomHeader from "@/components/CustomHeader";
 

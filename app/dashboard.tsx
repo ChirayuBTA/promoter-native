@@ -12,7 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
-import { getAuthValue, getLocValue } from "../utils/authStorage";
+import { getAuthValue, getLocValue } from "../utils/storage";
 import { api } from "../utils/api";
 import { format } from "date-fns";
 import CustomHeader from "@/components/CustomHeader";

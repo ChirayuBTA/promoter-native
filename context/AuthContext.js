@@ -1,10 +1,6 @@
 // context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from "react";
-import {
-  getAuthData,
-  storeAuthData,
-  clearAuthData,
-} from "../utils/authStorage";
+import { getAuthData, storeAuthData, clearAuthData } from "../utils/storage";
 
 // Create context
 const AuthContext = createContext();

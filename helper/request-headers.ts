@@ -1,9 +1,5 @@
 import { x_api_key } from "@/lib/apiConfig";
-import {
-  getAuthValue,
-  isAuthenticated,
-  clearAuthData,
-} from "@/utils/authStorage";
+import { getAuthValue, isAuthenticated, clearAuthData } from "@/utils/storage";
 
 export async function authHeaders(
   isMultipartData: boolean = false
