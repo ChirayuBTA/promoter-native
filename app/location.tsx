@@ -8,6 +8,8 @@ import {
   StatusBar,
   ScrollView,
   Alert,
+  StyleSheet,
+  Platform,
 } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import {
@@ -18,10 +20,12 @@ import {
   Building,
   ChevronRight,
 } from "lucide-react-native";
+import Constants from "expo-constants";
 import { api } from "@/utils/api";
 import { getAuthValue, storeAuthData, storeLocData } from "@/utils/storage";
 import { useRouter } from "expo-router";
 import CustomHeader from "@/components/CustomHeader";
+import SearchDropdown from "@/components/SearchDropdown";
 
 // Define types for our data structures
 interface City {
@@ -68,6 +72,12 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   const [selectedCityName, setSelectedCityName] = useState<string>("");
   const [selectedSocietyName, setSelectedSocietyName] = useState<string>("");
   const router = useRouter();
+
+  // Get status bar height
+  const statusBarHeight =
+    Platform.OS === "ios"
+      ? Constants.statusBarHeight
+      : StatusBar.currentHeight || 24;
 
   const fetchCities = async () => {
     setLoadingCities(true);
@@ -205,20 +215,11 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   }, [selectedCity, societySearch]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView
+      className="flex-1 bg-gray-100"
+      style={{ paddingTop: statusBarHeight }}
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-
-      {/* Header */}
-      {/* <View className="flex-row justify-between items-center p-4 bg-white shadow-sm border-b border-gray-200">
-        <View className="flex-row items-center">
-          <Text className="text-2xl font-bold">
-            DIRECT<Text className="text-red-500">X</Text>
-          </Text>
-        </View>
-        <TouchableOpacity className="p-2">
-          <LogOut size={22} color="#374151" />
-        </TouchableOpacity>
-      </View> */}
 
       <CustomHeader isLocationScreen={true} />
 
