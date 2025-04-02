@@ -7,15 +7,23 @@ import {
   StatusBar,
   SafeAreaView,
   Platform,
-  Dimensions,
-  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import { getAuthValue } from "../utils/authStorage"; // Import getAuthValue
+import { api } from "../utils/api"; // Import API methods
+import Header from "./header"; // Assuming Header is in components folder
 
 const DashboardScreen = () => {
   const [activeTab, setActiveTab] = useState<"today" | "total">("today");
+  const [todayEntries, setTodayEntries] = useState<any[]>([]);
+  const [totalEntries, setTotalEntries] = useState<any[]>([]);
+  const [societyName, setSocietyName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [societyId, setSocietyId] = useState<string | null>(null);
+  const [promoterId, setPromoterId] = useState<string | null>(null);
   const router = useRouter();
 
   // Get status bar height
@@ -24,16 +32,54 @@ const DashboardScreen = () => {
       ? Constants.statusBarHeight
       : StatusBar.currentHeight || 24;
 
-  // Dummy Data for Entries
-  const todayEntries = [
-    { id: "1", name: "John Doe", flat: "A-101", time: "10:00 AM" },
-    { id: "2", name: "Mary Smith", flat: "B-202", time: "12:30 PM" },
-  ];
+  // Fetch dashboard data with query parameters
+  const fetchData = async () => {
+    if (!societyId || !promoterId) return; // Ensure values exist before API call
 
-  const totalEntries = [
-    ...todayEntries,
-    { id: "3", name: "Alex Brown", flat: "C-303", time: "08:15 AM" },
-  ];
+    setLoading(true);
+    try {
+      const data = await api.getDashboardData({
+        societyId,
+        promoterId,
+      });
+      setTodayEntries(data.todayEntries || []);
+      setTotalEntries(data.totalEntries || []);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch dashboard data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch society name
+
+
+  // Get stored values from authStorage
+  const getStoredData = async () => {
+    try {
+      const storedSocietyId = await getAuthValue("societyId");
+      const storedPromoterId = await getAuthValue("promoterId");
+      const storedSocietyName = await getAuthValue("societyName");
+
+      if (storedSocietyId) setSocietyId(storedSocietyId);
+      if (storedPromoterId) setPromoterId(storedPromoterId);
+      if (storedSocietyName) setSocietyName(storedSocietyName);
+
+    } catch (err) {
+      setError("Failed to fetch data from storage.");
+    }
+  };
+
+  useEffect(() => {
+    getStoredData(); // Get stored values on mount
+  }, []);
+
+
+
+  useEffect(() => {
+    fetchData();
+  }, [societyId, promoterId,societyName]); // Trigger fetchData when values are set
 
   // Render Entry Item
   const renderEntryItem = ({ item }: { item: any }) => (
@@ -48,14 +94,14 @@ const DashboardScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar barStyle="light-content" backgroundColor="#E53E3E" />
-
-      {/* This view acts as a spacer with the exact height of the status bar */}
+      <Header /> 
+      {/* Spacer for StatusBar height */}
       <View style={{ height: statusBarHeight, backgroundColor: "#E53E3E" }} />
 
-      {/* Header Section with proper spacing */}
+      {/* Header Section */}
       <View className="bg-red-500 py-6 px-6 rounded-b-2xl shadow-md">
         <Text className="text-2xl font-bold text-white">
-          Green Valley Society
+          {societyName || "Loading..."}
         </Text>
       </View>
 
@@ -103,16 +149,22 @@ const DashboardScreen = () => {
 
       {/* Entries List */}
       <View className="flex-1 mx-6 mt-4">
-        <FlatList
-          data={activeTab === "today" ? todayEntries : totalEntries}
-          renderItem={renderEntryItem}
-          keyExtractor={(item) => item.id}
-          ListEmptyComponent={() => (
-            <Text className="text-center text-gray-500 mt-4">
-              No entries available
-            </Text>
-          )}
-        />
+        {loading ? (
+          <Text className="text-center text-gray-500 mt-4">Loading...</Text>
+        ) : error ? (
+          <Text className="text-center text-red-500 mt-4">{error}</Text>
+        ) : (
+          <FlatList
+            data={activeTab === "today" ? todayEntries : totalEntries}
+            renderItem={renderEntryItem}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={() => (
+              <Text className="text-center text-gray-500 mt-4">
+                No entries available
+              </Text>
+            )}
+          />
+        )}
       </View>
 
       {/* Floating + Button */}

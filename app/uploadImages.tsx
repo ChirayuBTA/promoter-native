@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -15,24 +15,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "../utils/api"; // Import API methods
 
 const CreateScreen = () => {
-  const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [image, setImage] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]); // State to hold multiple images
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
-  // Handle Image Selection / Capture
-  const pickImage = async () => {
+  // Handle Image Selection for multiple images
+  const pickImages = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.7,
+      selectionLimit: 5, // Allow multiple images (5 in this case)
     });
 
     if (!result.canceled && result.assets.length > 0) {
-      console.log("result.assets[0].uri",result.assets[0].uri)
-      setImage(result.assets[0].uri);
+      const newImages = result.assets.map((asset) => asset.uri);
+      setImages((prevImages) => [...prevImages, ...newImages]);
     }
   };
 
@@ -44,47 +43,42 @@ const CreateScreen = () => {
     });
 
     if (!result.canceled && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      setImages((prevImages) => [...prevImages, result.assets[0].uri]);
     }
   };
 
   // Handle Submit
   const handleSubmit = async () => {
-    if (!name || !phone || !image) {
-      Alert.alert("Error", "Please fill all fields and upload an image.");
+    if (images.length === 0) {
+      Alert.alert("Error", "Please upload at least one image.");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("phone", phone);
-  
-    // Convert image URI to a Blob object using fetch
-    const response = await fetch(image);
-    const blob = await response.blob(); // Convert URI to Blob
-  
-    // Create the file-like object to append to FormData
-    const fileData = {
-      uri: image,
-      name: `photo_${Date.now()}.jpg`,
-      type: "image/jpeg", // The MIME type of the file
-      size: blob.size, // Adding the size to ensure the backend can correctly interpret the file
-    };
-  
-    formData.append("image", blob, fileData.name);
-  
-    // Debugging - log the FormData to verify it is correctly populated
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-  
+
     try {
-      const response = await api.createOrderEntry(formData)
-  
-      
-  
+      // Convert each image URI to a Blob object and append to formData
+      for (let i = 0; i < images.length; i++) {
+        const response = await fetch(images[i]);
+        const blob = await response.blob(); // Convert URI to Blob
+        const fileData = {
+          uri: images[i],
+          name: `photo_${Date.now()}_${i}.jpg`,
+          type: "image/jpeg",
+          size: blob.size,
+        };
+        formData.append("images", blob, fileData.name);
+      }
+
+      // Debugging - log the FormData to verify it is correctly populated
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      const response = await api.createOrderEntry(formData);
+
       if (response.success === true) {
         Alert.alert("Success", "Entry created successfully!");
         router.replace("/dashboard");
@@ -98,46 +92,29 @@ const CreateScreen = () => {
       setIsLoading(false);
     }
   };
-  
-  
-  
+
+  // Remove selected image
+  const removeImage = (uri: string) => {
+    setImages((prevImages) => prevImages.filter((image) => image !== uri));
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 px-6 pt-16">
       {/* Header */}
       <Text className="text-2xl font-bold text-center text-red-500 mb-6">
-        Create New Entry
+        Upload Event Images
       </Text>
 
-      {/* Name Input */}
-      <Text className="text-sm font-medium text-gray-700 mb-2">Name</Text>
-      <TextInput
-        className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
-        placeholder="Enter name"
-        value={name}
-        onChangeText={setName}
-      />
-
-      {/* Phone Input */}
-      <Text className="text-sm font-medium text-gray-700 mb-2">Phone</Text>
-      <TextInput
-        className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
-        placeholder="Enter phone number"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
-      />
-
       {/* Image Upload */}
-      <Text className="text-sm font-medium text-gray-700 mb-2">Photo</Text>
+      <Text className="text-sm font-medium text-gray-700 mb-2">Select Photos</Text>
       <View className="flex-row space-x-4 mb-4">
         {/* Select from Gallery */}
         <TouchableOpacity
-          onPress={pickImage}
+          onPress={pickImages}
           className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
         >
           <Ionicons name="image" size={24} color="#E53E3E" />
-          <Text className="text-sm text-gray-600 mt-2">Select Photo</Text>
+          <Text className="text-sm text-gray-600 mt-2">Select Photos</Text>
         </TouchableOpacity>
 
         {/* Take a Photo */}
@@ -150,22 +127,31 @@ const CreateScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Preview Image */}
-      {image && (
-        <View className="items-center mb-4">
-          <Image
-            source={{ uri: image }}
-            className="w-32 h-32 rounded-xl border border-gray-300"
-          />
-        </View>
-      )}
+      {/* Preview Images */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+        {images.map((uri, index) => (
+          <View key={index} className="relative mr-4">
+            <Image
+              source={{ uri }}
+              className="w-32 h-32 rounded-xl border border-gray-300"
+            />
+            {/* Cross icon to remove image */}
+            <TouchableOpacity
+              onPress={() => removeImage(uri)}
+              className="absolute top-0 right-0 bg-white p-1 rounded-full"
+            >
+              <Ionicons name="close-circle" size={24} color="red" />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
 
       {/* Submit Button */}
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={isLoading}
         className={`w-full py-4 rounded-xl ${
-          name && phone && image ? "bg-red-500" : "bg-gray-300"
+          images.length > 0 ? "bg-red-500" : "bg-gray-300"
         } items-center shadow-md`}
       >
         {isLoading ? (

@@ -148,6 +148,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   };
 
   const handleContinue = async () => {
+    console.log("COntinew",selectedCity,selectedSociety)
     if (selectedCity && selectedSociety) {
       Alert.alert(
         "Confirm Selection",
@@ -168,11 +169,10 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
 
               // Store the data using the provided function
               const stored = await storeAuthData(locationData);
-
               if (stored) {
                 console.log("Location data stored successfully:", locationData);
                 // Navigate to next screen
-                router.replace("/dashboard");
+                router.push("/dashboard");
                 // navigation.navigate("/dashboard");
               } else {
                 Alert.alert(
