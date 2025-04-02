@@ -21,7 +21,7 @@ const OtpScreen = () => {
   const { phoneNumber } = useLocalSearchParams();
   const [otp, setOtp] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [resendTimer, setResendTimer] = useState<number>(30);
+  const [resendTimer, setResendTimer] = useState<number>(120);
   const router = useRouter();
 
   const phone = Array.isArray(phoneNumber) ? phoneNumber[0] : phoneNumber;
@@ -72,11 +72,36 @@ const OtpScreen = () => {
     }
   };
 
-  // Handle Resend OTP
-  const resendOTP = () => {
+  const resendOTP = async () => {
     if (resendTimer === 0) {
-      setResendTimer(30);
-      Alert.alert("OTP Sent", "A new OTP has been sent to your number.");
+      setResendTimer(120);
+
+      if (phone.length === 10) {
+        setIsLoading(true);
+
+        try {
+          // Call the API to send OTP
+          const response = await api.sendOTP({ phone: phone });
+
+          if (response.success) {
+            // If successful, navigate to the OTP verification screen
+            Alert.alert("OTP Sent", "A new OTP has been sent to your number.");
+          } else {
+            // If the response is not successful, show the error message
+            Alert.alert("Error", response.message || "Failed to resend OTP.");
+          }
+        } catch (error) {
+          Alert.alert("Error", "Something went wrong. Please try again.");
+          console.error("Error resending OTP:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        Alert.alert(
+          "Invalid Number",
+          "Please enter a valid 10-digit mobile number."
+        );
+      }
     }
   };
 
@@ -96,7 +121,20 @@ const OtpScreen = () => {
         {/* Content Section */}
         <View className="px-6 pt-14 flex-1 justify-center">
           <View className="rounded-b-[50px] justify-center items-center mb-6">
-            <Ionicons name="keypad" size={80} color="#f87171" />
+            <View className="flex-row ">
+              <Text
+                className="text-[38px] font-[900] tracking-tighter"
+                // style={{ fontSize: 40, fontWeight: "bold" }}
+              >
+                DIRECT
+              </Text>
+              <Text
+                className="text-[38px] text-red-600 font-[900] tracking-tighter"
+                // style={{ fontSize: 40, fontWeight: "bold", color: "red" }}
+              >
+                X
+              </Text>
+            </View>
           </View>
 
           <Text className="text-2xl font-bold text-center mb-2 text-gray-800">
@@ -159,7 +197,13 @@ const OtpScreen = () => {
             ) : (
               <Text className="text-gray-500 text-sm">
                 Resend OTP in{" "}
-                <Text className="text-black font-medium">{resendTimer}s</Text>
+                <Text className="text-black font-medium">
+                  {resendTimer >= 60
+                    ? `${Math.floor(resendTimer / 60)}:${String(
+                        resendTimer % 60
+                      ).padStart(2, "0")} m`
+                    : `${resendTimer} s`}
+                </Text>
               </Text>
             )}
           </View>

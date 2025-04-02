@@ -70,12 +70,21 @@ const LoginScreen = () => {
       >
         {/* Content Section */}
         <View className="px-6 pt-14 flex-1 justify-center">
-          <View className="rounded-b-[50px] justify-center items-center">
-            <Image
-              source={require("../../assets/images/DirectX-Logo.png")}
-              className="w-40 h-40"
-              resizeMode="contain"
-            />
+          <View className="rounded-b-[50px] justify-center items-center mb-6">
+            <View className="flex-row">
+              <Text
+                className="text-[38px] font-[900] tracking-tighter"
+                // style={{ fontSize: 40, fontWeight: "bold" }}
+              >
+                DIRECT
+              </Text>
+              <Text
+                className="text-[38px] text-red-600 font-[900] tracking-tighter"
+                // style={{ fontSize: 40, fontWeight: "bold", color: "red" }}
+              >
+                X
+              </Text>
+            </View>
           </View>
           <Text className="text-2xl font-bold text-center mb-2 text-gray-800">
             Welcome Back!
