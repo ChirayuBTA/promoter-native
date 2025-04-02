@@ -45,13 +45,17 @@ const OtpScreen = () => {
 
         // If OTP is verified successfully
         if (response.success) {
-          // Store required values using our utility
-          await storeAuthData({
+          const authData = {
             projectId: response.promoter.projectIds[0],
             promoterId: response.promoter.id,
             vendorId: response.promoter.vendorId,
             token: response.token,
-          });
+          };
+          // Store required values using our utility
+          const stored = await storeAuthData(authData);
+          if (stored) {
+            console.log("Auth data stored successfully:", authData);
+          }
 
           router.replace("/location");
         } else {

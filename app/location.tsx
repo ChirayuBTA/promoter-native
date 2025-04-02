@@ -19,8 +19,9 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import { api } from "@/utils/api";
-import { storeAuthData } from "@/utils/authStorage";
+import { getAuthValue, storeAuthData, storeLocData } from "@/utils/authStorage";
 import { useRouter } from "expo-router";
+import CustomHeader from "@/components/CustomHeader";
 
 // Define types for our data structures
 interface City {
@@ -148,7 +149,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   };
 
   const handleContinue = async () => {
-    console.log("COntinew",selectedCity,selectedSociety)
+    console.log("COntinew", selectedCity, selectedSociety);
     if (selectedCity && selectedSociety) {
       Alert.alert(
         "Confirm Selection",
@@ -168,7 +169,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
               };
 
               // Store the data using the provided function
-              const stored = await storeAuthData(locationData);
+              const stored = await storeLocData(locationData);
               if (stored) {
                 console.log("Location data stored successfully:", locationData);
                 // Navigate to next screen
@@ -202,16 +203,13 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
       fetchSocieties(selectedCity);
     }
   }, [selectedCity, societySearch]);
-  console.log("selectedCity", selectedCity);
-  console.log("selectedSociety", selectedSociety);
-  console.log("selectedActivityId", selectedActivityId);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Header */}
-      <View className="flex-row justify-between items-center p-4 bg-white shadow-sm border-b border-gray-200">
+      {/* <View className="flex-row justify-between items-center p-4 bg-white shadow-sm border-b border-gray-200">
         <View className="flex-row items-center">
           <Text className="text-2xl font-bold">
             DIRECT<Text className="text-red-500">X</Text>
@@ -220,7 +218,9 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
         <TouchableOpacity className="p-2">
           <LogOut size={22} color="#374151" />
         </TouchableOpacity>
-      </View>
+      </View> */}
+
+      <CustomHeader isLocationScreen={true} />
 
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
         {/* Title Section */}

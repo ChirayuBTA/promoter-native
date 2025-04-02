@@ -1,8 +1,9 @@
 // utils/authStorage.js
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Keys
-const AUTH_DATA_KEY = 'authData';
+const AUTH_DATA_KEY = "authData";
+const LOC_DATA_KEY = "locData";
 
 // Store authentication data
 export const storeAuthData = async (data) => {
@@ -10,7 +11,16 @@ export const storeAuthData = async (data) => {
     await AsyncStorage.setItem(AUTH_DATA_KEY, JSON.stringify(data));
     return true;
   } catch (error) {
-    console.error('Error storing auth data:', error);
+    console.error("Error storing auth data:", error);
+    return false;
+  }
+};
+export const storeLocData = async (data) => {
+  try {
+    await AsyncStorage.setItem(LOC_DATA_KEY, JSON.stringify(data));
+    return true;
+  } catch (error) {
+    console.error("Error storing location data:", error);
     return false;
   }
 };
@@ -21,7 +31,16 @@ export const getAuthData = async () => {
     const jsonValue = await AsyncStorage.getItem(AUTH_DATA_KEY);
     return jsonValue != null ? JSON.parse(jsonValue) : null;
   } catch (error) {
-    console.error('Error reading auth data:', error);
+    console.error("Error reading auth data:", error);
+    return null;
+  }
+};
+export const getLocData = async () => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(LOC_DATA_KEY);
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (error) {
+    console.error("Error reading location data:", error);
     return null;
   }
 };
@@ -36,6 +55,15 @@ export const getAuthValue = async (key) => {
     return null;
   }
 };
+export const getLocValue = async (key) => {
+  try {
+    const locData = await getLocData();
+    return locData ? locData[key] : null;
+  } catch (error) {
+    console.error(`Error getting location value for ${key}:`, error);
+    return null;
+  }
+};
 
 // Check if user is authenticated
 export const isAuthenticated = async () => {
@@ -43,7 +71,7 @@ export const isAuthenticated = async () => {
     const authData = await getAuthData();
     return !!authData && !!authData.token;
   } catch (error) {
-    console.error('Error checking authentication:', error);
+    console.error("Error checking authentication:", error);
     return false;
   }
 };
@@ -54,7 +82,16 @@ export const clearAuthData = async () => {
     await AsyncStorage.removeItem(AUTH_DATA_KEY);
     return true;
   } catch (error) {
-    console.error('Error clearing auth data:', error);
+    console.error("Error clearing auth data:", error);
+    return false;
+  }
+};
+export const clearLocData = async () => {
+  try {
+    await AsyncStorage.removeItem(LOC_DATA_KEY);
+    return true;
+  } catch (error) {
+    console.error("Error clearing location data:", error);
     return false;
   }
 };
