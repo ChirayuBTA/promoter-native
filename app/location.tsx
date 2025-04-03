@@ -79,56 +79,50 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
       ? Constants.statusBarHeight
       : StatusBar.currentHeight || 24;
 
-  const fetchCities = async () => {
+  const fetchCities = () => {
     setLoadingCities(true);
-    try {
-      const response = await api.getCities({
-        limit: 20,
-        page: 1,
-        search: citySearch,
-      });
 
-      setCities(
-        response?.data?.map((city: City) => ({
-          key: city.id,
-          value: city.name,
-        })) || []
-      );
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-      Alert.alert("Error", "Failed to load cities. Please try again.");
-    } finally {
-      setLoadingCities(false);
-    }
+    api
+      .getCities({ limit: 20, page: 1, search: citySearch })
+      .then(({ data }) => {
+        console.log("city data--", data);
+
+        setCities(
+          data?.map(({ id, name }: City) => ({ key: id, value: name })) || []
+        );
+      })
+      .catch((error) => {
+        // console.error("Error fetching cities:", error);
+        console.log("city error--", error);
+
+        Alert.alert(
+          "Error",
+          error.message || "Failed to load cities. Please try again."
+        );
+      })
+      .finally(() => setLoadingCities(false));
   };
 
-  const fetchSocieties = async (cityId: string) => {
+  const fetchSocieties = (cityId: string) => {
     setLoadingSocieties(true);
-    try {
-      const response = await api.getSocities({
-        limit: 20,
-        page: 1,
-        search: societySearch,
-        cityId,
-      });
-      console.log("response---", response);
 
-      // Store the full society objects with activity data
-      setSocietiesData(response?.data || []);
-
-      // Create the dropdown items
-      setSocieties(
-        response?.data?.map((soc: Society) => ({
-          key: soc.id,
-          value: soc.name,
-        })) || []
-      );
-    } catch (error) {
-      console.error("Error fetching societies:", error);
-      Alert.alert("Error", "Failed to load societies. Please try again.");
-    } finally {
-      setLoadingSocieties(false);
-    }
+    api
+      .getSocities({ limit: 20, page: 1, search: societySearch, cityId })
+      .then(({ data }) => {
+        console.log("response---", data);
+        setSocietiesData(data || []);
+        setSocieties(
+          data?.map(({ id, name }: Society) => ({ key: id, value: name })) || []
+        );
+      })
+      .catch((error) => {
+        // console.error("Error fetching societies:", error);
+        Alert.alert(
+          "Error",
+          error.message || "Failed to load societies. Please try again."
+        );
+      })
+      .finally(() => setLoadingSocieties(false));
   };
 
   const handleCitySelect = (cityId: string) => {

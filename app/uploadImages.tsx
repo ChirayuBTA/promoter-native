@@ -74,8 +74,8 @@ const CreateScreen = () => {
   };
 
   // Handle submit (uploads images)
-  const handleSubmit = async () => {
-    if (images.length === 0) {
+  const handleSubmit = () => {
+    if (!images.length) {
       Alert.alert("Error", "Please upload at least one image.");
       return;
     }
@@ -83,32 +83,34 @@ const CreateScreen = () => {
     setIsLoading(true);
     const formData = new FormData();
 
-    try {
-      for (let i = 0; i < images.length; i++) {
-        const response = await fetch(images[i]);
-        const blob = await response.blob();
-
-        formData.append("images", {
-          uri: images[i],
-          name: `photo_${Date.now()}_${i}.jpg`,
-          type: "image/jpeg",
-        } as any);
-      }
-      formData.append("activityLocId", activityId);
-      const response = await api.uploadImages(formData);
-
-      if (response.success) {
-        Alert.alert("Success", "Images uploaded successfully!");
-        router.replace("/dashboard");
-      } else {
-        Alert.alert("Error", "Failed to upload Images.");
-      }
-    } catch (error) {
-      console.error("Upload Error:", error);
-      Alert.alert("Error", "Something went wrong.");
-    } finally {
-      setIsLoading(false);
-    }
+    Promise.all(
+      images.map((uri, index) =>
+        Promise.resolve().then(() => {
+          formData.append("images", {
+            uri,
+            name: `photo_${Date.now()}_${index}.jpg`,
+            type: "image/jpeg",
+          } as any);
+        })
+      )
+    )
+      .then(() => {
+        formData.append("activityLocId", activityId);
+        return api.uploadImages(formData);
+      })
+      .then(({ success, message }) => {
+        if (success) {
+          Alert.alert("Success", "Images uploaded successfully!");
+          router.replace("/dashboard");
+        } else {
+          Alert.alert("Error", message || "Failed to upload images.");
+        }
+      })
+      .catch((error) => {
+        // console.error("Upload Error:", error);
+        Alert.alert("Error", error.message || "Something went wrong.");
+      })
+      .finally(() => setIsLoading(false));
   };
 
   // Remove selected image

@@ -35,74 +35,70 @@ const OtpScreen = () => {
   }, [resendTimer]);
 
   // Handle OTP verification
-  const verifyOTP = async () => {
-    if (otp.length === 6) {
-      setIsLoading(true);
-      try {
-        // Call the verifyOTP API
-        const response = await api.verifyOTP({ phone, otp });
-        console.log("response--", response);
-
-        // If OTP is verified successfully
-        if (response.success) {
-          const authData = {
-            projectId: response.promoter.projectIds[0],
-            promoterId: response.promoter.id,
-            vendorId: response.promoter.vendorId,
-            token: response.token,
-          };
-          // Store required values using our utility
-          const stored = await storeAuthData(authData);
-          if (stored) {
-            console.log("Auth data stored successfully:", authData);
-          }
-
-          router.replace("/location");
-        } else {
-          Alert.alert("Invalid OTP", "The OTP you entered is incorrect.");
-        }
-      } catch (error) {
-        Alert.alert("Error", "Failed to verify OTP. Please try again.");
-        console.error("Error verifying OTP:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      Alert.alert("Invalid OTP", "Please enter a valid 6-digit OTP.");
+  const verifyOTP = () => {
+    if (otp.length !== 6) {
+      return Alert.alert("Invalid OTP", "Please enter a valid 6-digit OTP.");
     }
+
+    setIsLoading(true);
+
+    api
+      .verifyOTP({ phone, otp })
+      .then((response) => {
+        if (!response.success) {
+          return Alert.alert("Error", response.message || "Invalid OTP");
+        }
+
+        const authData = {
+          projectId: response.promoter.projectIds[0],
+          promoterId: response.promoter.id,
+          vendorId: response.promoter.vendorId,
+          token: response.token,
+        };
+
+        return storeAuthData(authData).then(() => {
+          console.log("Auth data stored successfully:", authData);
+          router.replace("/location");
+        });
+      })
+      .catch((error) => {
+        // console.error("Error verifying OTP:", error);
+        Alert.alert(
+          "Error",
+          error.message || "Failed to verify OTP. Please try again."
+        );
+      })
+      .finally(() => setIsLoading(false));
   };
 
-  const resendOTP = async () => {
-    if (resendTimer === 0) {
-      setResendTimer(120);
-
-      if (phone.length === 10) {
-        setIsLoading(true);
-
-        try {
-          // Call the API to send OTP
-          const response = await api.sendOTP({ phone: phone });
-
-          if (response.success) {
-            // If successful, navigate to the OTP verification screen
-            Alert.alert("OTP Sent", "A new OTP has been sent to your number.");
-          } else {
-            // If the response is not successful, show the error message
-            Alert.alert("Error", response.message || "Failed to resend OTP.");
-          }
-        } catch (error) {
-          Alert.alert("Error", "Something went wrong. Please try again.");
-          console.error("Error resending OTP:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        Alert.alert(
-          "Invalid Number",
-          "Please enter a valid 10-digit mobile number."
-        );
-      }
+  const resendOTP = () => {
+    if (resendTimer !== 0) return;
+    if (phone.length !== 10) {
+      return Alert.alert(
+        "Invalid Number",
+        "Please enter a valid 10-digit mobile number."
+      );
     }
+
+    setResendTimer(120);
+    setIsLoading(true);
+
+    api
+      .sendOTP({ phone })
+      .then((response) => {
+        Alert.alert(
+          response.success ? "OTP Sent" : "Error",
+          response.message || "Failed to resend OTP."
+        );
+      })
+      .catch((error) => {
+        // console.error("Error resending OTP:", error);
+        Alert.alert(
+          "Error",
+          error.message || "Something went wrong. Please try again."
+        );
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (

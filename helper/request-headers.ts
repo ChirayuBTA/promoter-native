@@ -18,9 +18,11 @@ export async function authHeaders(
     }),
   };
 }
-export function imageHeaders(isMultipartData: boolean = false): HeadersInit {
+export async function imageHeaders(
+  isMultipartData: boolean = false
+): Promise<HeadersInit> {
   // const token = localStorage.getItem("token");
-  const token = getAuthValue("token");
+  const token = await getAuthValue("token");
   return {
     "x-api-key": x_api_key,
     Authorization: `Bearer ${token}`,
@@ -37,8 +39,14 @@ export function headers(isMultipartData: boolean = false): HeadersInit {
     }),
   };
 }
-export function formHeaders(isMultipartData: boolean = false): HeadersInit {
+export async function formHeaders(
+  isMultipartData: boolean = false
+): Promise<HeadersInit> {
+  const token = await getAuthValue("token");
+  console.log("token--", token);
   return {
+    "x-api-key": x_api_key,
+    Authorization: `Bearer ${token}`,
     "ngrok-skip-browser-warning": "69420",
   };
 }

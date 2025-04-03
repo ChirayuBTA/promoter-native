@@ -96,56 +96,56 @@ const CreateScreen = () => {
   };
 
   // Handle Submit
-  const handleSubmit = async () => {
-    if (!name || !phone || !image) {
-      Alert.alert("Error", "Please fill all fields and upload an image.");
-      return;
+  const handleSubmit = () => {
+    if (![name, phone, image].every(Boolean)) {
+      return Alert.alert(
+        "Error",
+        "Please fill all fields and upload an image."
+      );
     }
 
     setIsLoading(true);
 
-    try {
-      // Create FormData object
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("phone", phone);
-      formData.append("promoterId", storageData.promoterId);
-      formData.append("projectId", storageData.projectId);
-      formData.append("activityLocId", storageData.activityLocId);
-      formData.append("vendorId", storageData.vendorId);
-      formData.append("activityId", storageData.activityId);
+    const formData = new FormData();
+    Object.entries({
+      name,
+      phone,
+      promoterId: storageData.promoterId,
+      projectId: storageData.projectId,
+      activityLocId: storageData.activityLocId,
+      vendorId: storageData.vendorId,
+      activityId: storageData.activityId,
+    }).forEach(([key, value]) => formData.append(key, value));
 
-      // Properly append the image file
-      // For React Native, we don't need to fetch and convert to blob
-      formData.append("image", {
-        uri: image,
-        name: `photo_${Date.now()}.jpg`,
-        type: "image/jpeg",
-      } as any);
+    formData.append("image", {
+      uri: image,
+      name: `photo_${Date.now()}.jpg`,
+      type: "image/jpeg",
+    } as any);
 
-      // Log FormData for debugging
-      console.log("Sending formData with image:", image);
+    console.log("Sending formData with image:", image);
 
-      // Send the request with proper timeout and error handling
-      const response = await api.createOrderEntry(formData);
-      console.log("API Response:", response);
-
-      if (response && response.success === true) {
-        Alert.alert("Success", "Entry created successfully!");
-        router.replace("/dashboard");
-      } else {
-        Alert.alert("Error", response?.message || "Failed to create entry.");
-      }
-    } catch (error) {
-      console.error("Upload Error:", error);
-      Alert.alert(
-        "Network Error",
-        "Please check your internet connection and try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    api
+      .createOrderEntry(formData)
+      .then((response) => {
+        console.log("API Response:", response);
+        Alert.alert(
+          response?.success ? "Success" : "Error",
+          response?.message || "Failed to create entry."
+        );
+        if (response?.success) router.replace("/dashboard");
+      })
+      .catch((error) => {
+        // console.error("Upload Error:", error);
+        Alert.alert(
+          "Error",
+          error.message ||
+            "Please check your internet connection and try again."
+        );
+      })
+      .finally(() => setIsLoading(false));
   };
+
   console.log("authData--", storageData);
 
   return (

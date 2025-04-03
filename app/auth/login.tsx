@@ -23,36 +23,36 @@ const LoginScreen = () => {
 
   // Handle sending OTP
   const sendOTP = async () => {
-    if (phoneNumber.length === 10) {
-      setIsLoading(true);
+    if (phoneNumber.length !== 10) {
+      Alert.alert(
+        "Invalid Number",
+        "Please enter a valid 10-digit mobile number."
+      );
+      return;
+    }
 
-      try {
-        // Call the API to send OTP
-        const response = await api.sendOTP({ phone: phoneNumber });
+    setIsLoading(true);
+
+    api
+      .sendOTP({ phone: phoneNumber })
+      .then((response) => {
         console.log("response---");
 
         if (response.success) {
-          // If successful, navigate to the OTP verification screen
           router.push({
             pathname: "/auth/otp",
             params: { phoneNumber },
           });
         } else {
-          // If the response is not successful, show the error message
           Alert.alert("Error", response.message || "Failed to send OTP.");
         }
-      } catch (error) {
-        Alert.alert("Error", "Something went wrong. Please try again.");
-        console.error("Error sending OTP:", error);
-      } finally {
+      })
+      .catch((error) => {
+        Alert.alert("Error", error.message || "Error sending OTP");
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    } else {
-      Alert.alert(
-        "Invalid Number",
-        "Please enter a valid 10-digit mobile number."
-      );
-    }
+      });
   };
 
   return (

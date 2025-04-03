@@ -33,21 +33,23 @@ export const api = {
   },
   createOrderEntry: async function (body: FormData) {
     console.log(body);
+    const headers = await formHeaders();
     const reqOptions = {
       method: "POST",
       body,
       credentials: "include" as RequestCredentials,
-      headers: formHeaders(),
+      headers,
     };
     return fetch(`${apiUrl}/order`, reqOptions).then(handleResponse);
   },
   uploadImages: async function (body: FormData) {
     console.log(body);
+    const headers = await imageHeaders();
     const reqOptions = {
       method: "POST",
       body,
       credentials: "include" as RequestCredentials,
-      headers: imageHeaders(),
+      headers,
     };
     return fetch(`${apiUrl}/app/uploadImages`, reqOptions).then(handleResponse);
   },

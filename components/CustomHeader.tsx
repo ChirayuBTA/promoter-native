@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, usePathname } from "expo-router";
 import { LogOut } from "lucide-react-native";
@@ -13,8 +13,16 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
   const pathname = usePathname();
 
   const handleResetSettings = async () => {
-    await clearLocData();
-    router.replace("/location");
+    Alert.alert("Reset?", `Are you sure you want to reset your settings?`, [
+      { text: "No", style: "cancel" },
+      {
+        text: "Yes",
+        onPress: async () => {
+          await clearLocData();
+          router.replace("/location");
+        },
+      },
+    ]);
   };
 
   const handleUploadImages = () => {
@@ -22,9 +30,17 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
   };
 
   const handleLogout = async () => {
-    await clearLocData();
-    await clearAuthData();
-    router.replace("/");
+    Alert.alert("Logout?", `Are you sure you want to logout?`, [
+      { text: "No", style: "cancel" },
+      {
+        text: "Yes",
+        onPress: async () => {
+          await clearLocData();
+          await clearAuthData();
+          router.replace("/");
+        },
+      },
+    ]);
   };
 
   return (

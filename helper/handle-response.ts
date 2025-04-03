@@ -1,15 +1,33 @@
+import { clearAuthData, clearLocData } from "@/utils/storage";
+import { router } from "expo-router";
+import { Alert } from "react-native";
+
 export async function handleResponse(response: Response) {
-  return response.text().then((text) => {
+  return response.text().then(async (text) => {
     const data = text && JSON.parse(text);
-    if (data.message === "Unauthorized: Invalid token.") {
-      // localStorage.clear();
-      window.location.href = "/";
+
+    if (data?.message === "Unauthorized: Invalid token") {
+      await clearAuthData();
+      await clearLocData();
+      router.push("/"); // Redirect to login page
+      // Alert.alert("Error", "You have been logged out.");
+      return Promise.reject(
+        new Error("You have been logged in on another device")
+      );
     }
 
-    // if (!response.ok) {
-    //   const error = (data && data.message) || response.statusText;
-    //   return Promise.reject({ error, data });
-    // }
+    if (data?.message === "Unauthorized: Invalid session") {
+      await clearAuthData();
+      await clearLocData();
+      router.push("/"); // Redirect to login page
+      // Alert.alert("Error", "You have been logged out.");
+      return Promise.reject(new Error("Your sessions has expired"));
+    }
+
+    if (!response.ok) {
+      return Promise.reject(new Error(data?.message || "Something went wrong"));
+    }
+
     return data;
   });
 }

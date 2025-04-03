@@ -11,6 +11,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -44,8 +45,8 @@ const DashboardScreen = () => {
   // Pagination State
   const [todaysPage, setTodaysPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const [todaysLimit] = useState(1);
-  const [totalLimit] = useState(1);
+  const [todaysLimit] = useState(10);
+  const [totalLimit] = useState(10);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [todaysTotalCount, setTodaysTotalCount] = useState(0);
   const [totalTotalCount, setTotalTotalCount] = useState(0);
@@ -60,54 +61,49 @@ const DashboardScreen = () => {
       : StatusBar.currentHeight || 24;
 
   // Fetch dashboard data with query parameters
-  const fetchData = async (isLoadMore = false) => {
+  const fetchData = (isLoadMore = false) => {
     if (!societyId || !promoterId) return;
 
-    if (!isLoadMore) setLoading(true);
-    else setIsLoadingMore(true);
+    (isLoadMore ? setIsLoadingMore : setLoading)(true);
 
-    try {
-      const response = await api.getDashboardData({
+    api
+      .getDashboardData({
         activityLocId: societyId,
         promoterId,
         todaysPage,
         totalPage,
         todaysLimit,
         totalLimit,
+      })
+      .then(({ data }) => {
+        console.log("dashboard data--", data);
+
+        setTodaysTotalCount(data.todaysPagination?.totalCount || 0);
+        setTotalTotalCount(data.totalPagination?.totalCount || 0);
+
+        const mergeEntries = (prev: any, newEntries: any) =>
+          isLoadMore
+            ? [
+                ...prev,
+                ...newEntries.filter(
+                  ({ id }: any) => !prev.some((item: any) => item.id === id)
+                ),
+              ]
+            : newEntries;
+
+        setTodayEntries((prev) => mergeEntries(prev, data.todaysEntries));
+        setTotalEntries((prev) => mergeEntries(prev, data.totalEntries));
+
+        setError(null);
+      })
+      .catch((error) => {
+        console.log("dashboard error--", error);
+        Alert.alert("Error", error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+        setIsLoadingMore(false);
       });
-
-      // Update total counts
-      setTodaysTotalCount(response.data.todaysPagination?.totalCount || 0);
-      setTotalTotalCount(response.data.totalPagination?.totalCount || 0);
-
-      // Merge new data while ensuring uniqueness
-      setTodayEntries((prev) => {
-        const newEntries = response.data.todaysEntries.filter(
-          (newItem: any) =>
-            !prev.some((existingItem) => existingItem.id === newItem.id)
-        );
-        return isLoadMore
-          ? [...prev, ...newEntries]
-          : response.data.todaysEntries;
-      });
-
-      setTotalEntries((prev) => {
-        const newEntries = response.data.totalEntries.filter(
-          (newItem: any) =>
-            !prev.some((existingItem) => existingItem.id === newItem.id)
-        );
-        return isLoadMore
-          ? [...prev, ...newEntries]
-          : response.data.totalEntries;
-      });
-
-      setError(null);
-    } catch (err) {
-      console.log("Error: ", err);
-    } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
-    }
   };
 
   // Get stored values from authStorage
