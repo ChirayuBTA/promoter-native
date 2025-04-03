@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, ReactElement } from "react";
 import {
   View,
   Modal,
@@ -8,7 +8,7 @@ import {
 } from "react-native";
 
 interface DropdownMenuProps {
-  trigger: (onPress: () => void) => React.ReactNode; // Pass onPress function to trigger
+  trigger: (onPress: () => void) => React.ReactNode;
   children: React.ReactNode;
   dropdownWidth?: number;
 }
@@ -28,17 +28,15 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       triggerRef.current.measure((fx, fy, width, height, px, py) => {
         let adjustedX = px + width / 2 - dropdownWidth / 2;
 
-        // Prevent menu from overflowing the right side of the screen
         if (adjustedX + dropdownWidth > screenWidth) {
-          adjustedX = screenWidth - dropdownWidth - 10; // 10px margin
+          adjustedX = screenWidth - dropdownWidth - 10;
         }
 
-        // Prevent menu from overflowing the left side of the screen
         if (adjustedX < 10) {
-          adjustedX = 10; // 10px margin
+          adjustedX = 10;
         }
 
-        setPosition({ x: adjustedX, y: py + height, width });
+        setPosition({ x: adjustedX, y: py, width });
         setVisible(true);
       });
     }
@@ -52,7 +50,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         <View ref={triggerRef}>{trigger(handleOpen)}</View>
       </TouchableWithoutFeedback>
       {visible && (
-        <Modal transparent animationType="fade" onRequestClose={handleClose}>
+        <Modal transparent onRequestClose={handleClose}>
           <TouchableWithoutFeedback onPress={handleClose}>
             <View style={styles.modalOverlay}>
               <View
@@ -65,7 +63,14 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   },
                 ]}
               >
-                {children}
+                {React.Children.map(children, (child) =>
+                  React.isValidElement(child)
+                    ? React.cloneElement(
+                        child as ReactElement<{ onClose: () => void }>,
+                        { onClose: handleClose }
+                      )
+                    : child
+                )}
               </View>
             </View>
           </TouchableWithoutFeedback>

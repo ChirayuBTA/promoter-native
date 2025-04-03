@@ -53,14 +53,14 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
       ) : (
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {/* Show Home icon only if not on /dashboard */}
-          {pathname !== "/dashboard" && (
-            <TouchableOpacity
-              style={{ marginRight: 16 }}
-              onPress={() => router.push("/dashboard")}
-            >
-              <Ionicons name="home-outline" size={28} color="black" />
-            </TouchableOpacity>
-          )}
+          {/* {pathname !== "/dashboard" && ( */}
+          <TouchableOpacity
+            style={{ marginRight: 16 }}
+            onPress={() => router.push("/dashboard")}
+          >
+            <Ionicons name="home-outline" size={28} color="black" />
+          </TouchableOpacity>
+          {/* )} */}
 
           {/* Dropdown Menu */}
           <DropdownMenu
