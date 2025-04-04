@@ -11,9 +11,11 @@
     "ios": {
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app requires access to your photo library.",
-        "NSCameraUsageDescription": "This app requires access to your camera."
+        "NSCameraUsageDescription": "This app requires access to your camera.",
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.directx.promoterfe"
     },
     "android": {
       "permissions": [
