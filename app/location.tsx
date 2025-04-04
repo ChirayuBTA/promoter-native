@@ -71,7 +71,18 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   const [societySearch, setSocietySearch] = useState<string>("");
   const [selectedCityName, setSelectedCityName] = useState<string>("");
   const [selectedSocietyName, setSelectedSocietyName] = useState<string>("");
+  const [projectId, setProjectId] = useState("");
   const router = useRouter();
+
+  const fetchAuthData = async () => {
+    const projectId = await getAuthValue("projectId");
+
+    setProjectId(projectId);
+  };
+
+  useEffect(() => {
+    fetchAuthData();
+  }, []);
 
   // Get status bar height
   const statusBarHeight =
@@ -79,35 +90,35 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
       ? Constants.statusBarHeight
       : StatusBar.currentHeight || 24;
 
-  const fetchCities = () => {
-    setLoadingCities(true);
+  // const fetchCities = () => {
+  //   setLoadingCities(true);
 
-    api
-      .getCities({ limit: 20, page: 1, search: citySearch })
-      .then(({ data }) => {
-        console.log("city data--", data);
+  //   api
+  //     .getCities({ limit: 20, page: 1, search: citySearch })
+  //     .then(({ data }) => {
+  //       console.log("city data--", data);
 
-        setCities(
-          data?.map(({ id, name }: City) => ({ key: id, value: name })) || []
-        );
-      })
-      .catch((error) => {
-        // console.error("Error fetching cities:", error);
-        console.log("city error--", error);
+  //       setCities(
+  //         data?.map(({ id, name }: City) => ({ key: id, value: name })) || []
+  //       );
+  //     })
+  //     .catch((error) => {
+  //       // console.error("Error fetching cities:", error);
+  //       console.log("city error--", error);
 
-        Alert.alert(
-          "Error",
-          error.message || "Failed to load cities. Please try again."
-        );
-      })
-      .finally(() => setLoadingCities(false));
-  };
+  //       Alert.alert(
+  //         "Error",
+  //         error.message || "Failed to load cities. Please try again."
+  //       );
+  //     })
+  //     .finally(() => setLoadingCities(false));
+  // };
 
-  const fetchSocieties = (cityId: string) => {
+  const fetchSocieties = (projectId: string) => {
     setLoadingSocieties(true);
 
     api
-      .getSocities({ limit: 20, page: 1, search: societySearch, cityId })
+      .getSocities({ limit: 20, page: 1, search: societySearch, projectId })
       .then(({ data }) => {
         console.log("response---", data);
         setSocietiesData(data || []);
@@ -154,10 +165,10 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
 
   const handleContinue = async () => {
     console.log("COntinew", selectedCity, selectedSociety);
-    if (selectedCity && selectedSociety) {
+    if (selectedSociety) {
       Alert.alert(
         "Confirm Selection",
-        `You've selected ${selectedSocietyName} in ${selectedCityName}. This cannot be changed later.`,
+        `You've selected ${selectedSocietyName}. This cannot be changed later.`,
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -198,15 +209,15 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
     }
   };
 
-  useEffect(() => {
-    fetchCities();
-  }, [citySearch]);
+  // useEffect(() => {
+  //   fetchCities();
+  // }, [citySearch]);
 
   useEffect(() => {
-    if (selectedCity) {
-      fetchSocieties(selectedCity);
-    }
-  }, [selectedCity, societySearch]);
+    // if (selectedCity) {
+    fetchSocieties(projectId);
+    // }
+  }, [societySearch]);
 
   return (
     <SafeAreaView
@@ -236,7 +247,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
         </View>
 
         {/* Selection Cards */}
-        <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
+        {/* <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
           <View className="flex-row items-center mb-2">
             <MapPin size={18} color="#EF4444" />
             <Text className="text-gray-800 font-semibold text-lg ml-2">
@@ -284,59 +295,59 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
               />
             </View>
           )}
-        </View>
+        </View> */}
 
-        {selectedCity && (
-          <View className="bg-white rounded-xl shadow-sm p-4 mb-6">
-            <View className="flex-row items-center mb-2">
-              <Building size={18} color="#EF4444" />
-              <Text className="text-gray-800 font-semibold text-lg ml-2">
-                Society
-              </Text>
-            </View>
-
-            {loadingSocieties ? (
-              <View className="h-12 justify-center items-center">
-                <ActivityIndicator size="small" color="#EF4444" />
-              </View>
-            ) : (
-              <View className="border border-gray-200 rounded-lg bg-gray-50">
-                <SelectList
-                  setSelected={(val: string) => handleSocietySelect(val)}
-                  data={societies}
-                  save="key"
-                  placeholder="Search for your society..."
-                  boxStyles={{
-                    borderWidth: 0,
-                    backgroundColor: "transparent",
-                    height: 50,
-                  }}
-                  inputStyles={{
-                    fontSize: 16,
-                    color: "#1F2937",
-                  }}
-                  dropdownStyles={{
-                    borderColor: "#E5E7EB",
-                    backgroundColor: "white",
-                    maxHeight: 200,
-                  }}
-                  dropdownItemStyles={{
-                    paddingVertical: 12,
-                  }}
-                  dropdownTextStyles={{
-                    fontSize: 16,
-                  }}
-                  search={true}
-                  searchPlaceholder="Type to search societies..."
-                  disabled={!selectedCity}
-                />
-              </View>
-            )}
+        {/* {selectedCity && ( */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-6">
+          <View className="flex-row items-center mb-2">
+            <Building size={18} color="#EF4444" />
+            <Text className="text-gray-800 font-semibold text-lg ml-2">
+              Society
+            </Text>
           </View>
-        )}
+
+          {loadingSocieties ? (
+            <View className="h-12 justify-center items-center">
+              <ActivityIndicator size="small" color="#EF4444" />
+            </View>
+          ) : (
+            <View className="border border-gray-200 rounded-lg bg-gray-50">
+              <SelectList
+                setSelected={(val: string) => handleSocietySelect(val)}
+                data={societies}
+                save="key"
+                placeholder="Search for your society..."
+                boxStyles={{
+                  borderWidth: 0,
+                  backgroundColor: "transparent",
+                  height: 50,
+                }}
+                inputStyles={{
+                  fontSize: 16,
+                  color: "#1F2937",
+                }}
+                dropdownStyles={{
+                  borderColor: "#E5E7EB",
+                  backgroundColor: "white",
+                  maxHeight: 200,
+                }}
+                dropdownItemStyles={{
+                  paddingVertical: 12,
+                }}
+                dropdownTextStyles={{
+                  fontSize: 16,
+                }}
+                search={true}
+                searchPlaceholder="Type to search societies..."
+                disabled={!selectedCity}
+              />
+            </View>
+          )}
+        </View>
+        {/* )} */}
 
         {/* Selected Location Summary */}
-        {(selectedCityName || selectedSocietyName) && (
+        {selectedSocietyName && (
           <View className="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-6">
             <Text className="text-gray-700 font-medium mb-2">
               Your Selection:
@@ -364,9 +375,9 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
         <TouchableOpacity
           onPress={handleContinue}
           className={`flex-row justify-center items-center p-4 rounded-lg ${
-            selectedCity && selectedSociety ? "bg-red-500" : "bg-gray-300"
+            selectedSociety ? "bg-red-500" : "bg-gray-300"
           }`}
-          disabled={!selectedCity || !selectedSociety}
+          disabled={!selectedSociety}
         >
           <Text className="text-white font-semibold text-lg mr-2">
             Confirm Selection
