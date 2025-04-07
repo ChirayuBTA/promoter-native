@@ -26,6 +26,7 @@ import { getAuthValue, storeAuthData, storeLocData } from "@/utils/storage";
 import { useRouter } from "expo-router";
 import CustomHeader from "@/components/CustomHeader";
 import SearchDropdown from "@/components/SearchDropdown";
+import * as Location from "expo-location";
 
 // Define types for our data structures
 interface City {
@@ -72,6 +73,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   const [selectedCityName, setSelectedCityName] = useState<string>("");
   const [selectedSocietyName, setSelectedSocietyName] = useState<string>("");
   const [projectId, setProjectId] = useState("");
+  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
   const router = useRouter();
 
   const fetchAuthData = async () => {
@@ -82,6 +84,41 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
 
   useEffect(() => {
     fetchAuthData();
+  }, []);
+
+  const fetchCurrentLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission denied", "Location permission is required.");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      const address = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (address.length > 0) {
+        const { city, district, region, country } = address[0];
+        const locationString = `${district || ""}, ${city || ""}, ${
+          region || ""
+        }, ${country || ""}`;
+        setCurrentLocation(locationString);
+      } else {
+        setCurrentLocation(`Lat: ${latitude}, Lon: ${longitude}`);
+      }
+    } catch (error) {
+      console.log("Error fetching location:", error);
+      Alert.alert("Error", "Failed to fetch location.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentLocation();
   }, []);
 
   // Get status bar height
@@ -257,6 +294,18 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
             </View>
           </View>
         </View>
+
+        {currentLocation && (
+          <View className="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
+            <View className="flex-row items-center mb-1">
+              <MapPin size={16} color="#EF4444" />
+              <Text className="text-gray-800 font-medium ml-2">
+                Your Current Location
+              </Text>
+            </View>
+            <Text className="text-gray-600 ml-6">{currentLocation}</Text>
+          </View>
+        )}
 
         {/* Selection Cards */}
         {/* <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
