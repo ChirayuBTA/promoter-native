@@ -20,6 +20,8 @@ import { getAuthValue, getLocValue } from "../utils/storage";
 import { api } from "../utils/api";
 import { format } from "date-fns";
 import CustomHeader from "@/components/CustomHeader";
+import ImageViewer from "react-native-image-zoom-viewer";
+import { X } from "lucide-react-native";
 
 interface EntryItem {
   id: string;
@@ -347,29 +349,36 @@ const DashboardScreen = () => {
       )}
 
       {/* Full-Screen Image Modal */}
-      <Modal visible={modalVisible} transparent={true} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View className="flex-1 bg-black bg-opacity-90 justify-center items-center">
-            {/* Close Button */}
-            <TouchableOpacity
-              className="absolute top-10 right-5"
-              onPress={() => setModalVisible(false)}
-            >
-              <Ionicons name="close" size={32} color="white" />
-            </TouchableOpacity>
-
-            {/* Image Wrapper to control size */}
-            <View className="w-11/12 max-h-[80vh] justify-center items-center">
-              {selectedImage && (
-                <Image
-                  source={{ uri: selectedImage }}
-                  className="w-full h-full max-h-[80vh]"
-                  resizeMode="contain"
-                />
-              )}
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
+      <Modal
+        visible={modalVisible && !!selectedImage}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={{ flex: 1 }}>
+          {selectedImage && (
+            <>
+              <ImageViewer
+                imageUrls={[{ url: selectedImage }]}
+                enableSwipeDown
+                onSwipeDown={() => setModalVisible(false)}
+              />
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={{
+                  position: "absolute",
+                  top: 60,
+                  right: 20,
+                  backgroundColor: "rgba(0, 0, 0, 0.6)",
+                  padding: 10,
+                  borderRadius: 20,
+                }}
+              >
+                <X color="white" size={30} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </Modal>
 
       {/* Floating Action Button */}
