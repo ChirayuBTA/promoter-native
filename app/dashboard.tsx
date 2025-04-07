@@ -35,11 +35,11 @@ const DashboardScreen = () => {
   const [activeTab, setActiveTab] = useState("today");
   const [todayEntries, setTodayEntries] = useState<EntryItem[]>([]);
   const [totalEntries, setTotalEntries] = useState<EntryItem[]>([]);
-  const [societyName, setSocietyName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [societyId, setSocietyId] = useState(null);
   const [promoterId, setPromoterId] = useState(null);
+  const [activityLocId, setActivityLocId] = useState(null);
+  const [activityLocName, setActivityLocName] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   // Pagination State
@@ -60,15 +60,35 @@ const DashboardScreen = () => {
       ? Constants.statusBarHeight
       : StatusBar.currentHeight || 24;
 
+  // Get stored values from authStorage
+  const getStoredData = async () => {
+    try {
+      const storedPromoterId = await getAuthValue("promoterId");
+      const storedActivityLocId = await getLocValue("activityLocId");
+      const storedActivityLocName = await getLocValue("activityLocName");
+
+      if (storedPromoterId) setPromoterId(storedPromoterId);
+      if (storedActivityLocName) setActivityLocName(storedActivityLocName);
+      if (storedActivityLocId) setActivityLocId(storedActivityLocId);
+    } catch (err) {
+      // setError("Failed to fetch data from storage.");
+      console.log("Error: ", err);
+    }
+  };
+
+  useEffect(() => {
+    getStoredData(); // Get stored values on mount
+  }, []);
+
   // Fetch dashboard data with query parameters
   const fetchData = (isLoadMore = false) => {
-    if (!societyId || !promoterId) return;
+    if (!activityLocId || !promoterId) return;
 
     (isLoadMore ? setIsLoadingMore : setLoading)(true);
 
     api
       .getDashboardData({
-        activityLocId: societyId,
+        activityLocId,
         promoterId,
         todaysPage,
         totalPage,
@@ -76,8 +96,6 @@ const DashboardScreen = () => {
         totalLimit,
       })
       .then(({ data }) => {
-        console.log("dashboard data--", data);
-
         setTodaysTotalCount(data.todaysPagination?.totalCount || 0);
         setTotalTotalCount(data.totalPagination?.totalCount || 0);
 
@@ -106,29 +124,9 @@ const DashboardScreen = () => {
       });
   };
 
-  // Get stored values from authStorage
-  const getStoredData = async () => {
-    try {
-      const storedSocietyId = await getLocValue("societyId");
-      const storedPromoterId = await getAuthValue("promoterId");
-      const storedSocietyName = await getLocValue("societyName");
-
-      if (storedSocietyId) setSocietyId(storedSocietyId);
-      if (storedPromoterId) setPromoterId(storedPromoterId);
-      if (storedSocietyName) setSocietyName(storedSocietyName);
-    } catch (err) {
-      // setError("Failed to fetch data from storage.");
-      console.log("Error: ", err);
-    }
-  };
-
-  useEffect(() => {
-    getStoredData(); // Get stored values on mount
-  }, []);
-
   useEffect(() => {
     fetchData(); // Initial data fetch
-  }, [societyId, promoterId]);
+  }, [activityLocId, promoterId]);
 
   const loadMoreToday = () => {
     setTodaysPage((prev) => prev + 1);
@@ -223,7 +221,7 @@ const DashboardScreen = () => {
       <View className="bg-white mx-4 my-4 rounded-3xl shadow-md p-6">
         <View className="items-center mb-4">
           <Text className="text-3xl font-semibold text-gray-800">
-            {societyName || "Acme Avenue"}
+            {activityLocName}
           </Text>
           <View className="flex-row items-center mt-2">
             <Ionicons name="calendar-outline" size={20} color="gray" />

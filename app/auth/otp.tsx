@@ -14,15 +14,45 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { api } from "@/utils/api"; // Import API for OTP verification
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { storeAuthData } from "@/utils/storage";
+import { getAuthValue, getLocValue, storeAuthData } from "@/utils/storage";
 
 const OtpScreen = () => {
   const { phoneNumber } = useLocalSearchParams();
   const [otp, setOtp] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resendTimer, setResendTimer] = useState<number>(120);
+  //Storage Data state
+  const [token, setToken] = useState<string | null>(null);
+  const [promoterId, setPromoterId] = useState<string | null>(null);
+  const [activityLocId, setActivityLocId] = useState<string | null>(null);
   const router = useRouter();
+  // Get stored values from authStorage
+  const getStoredData = async () => {
+    try {
+      const storedToken = await getAuthValue("token");
+      const storedPromoterId = await getAuthValue("promoterId");
+      const storedActivityLocId = await getLocValue("activityLocId");
+
+      if (storedToken) setToken(storedToken);
+      if (storedPromoterId) setPromoterId(storedPromoterId);
+      if (storedActivityLocId) setActivityLocId(storedActivityLocId);
+    } catch (err) {
+      // setError("Failed to fetch data from storage.");
+      console.log("Error: ", err);
+    }
+  };
+
+  useEffect(() => {
+    getStoredData(); // Get stored values on mount
+  }, []);
+
+  useEffect(() => {
+    if (token && promoterId && !activityLocId) {
+      router.replace("/location");
+    } else if (token && promoterId && activityLocId) {
+      router.replace("/dashboard");
+    }
+  }, [token, promoterId, activityLocId]);
 
   const phone = Array.isArray(phoneNumber) ? phoneNumber[0] : phoneNumber;
 

@@ -58,7 +58,6 @@ const SearchDropdown = ({
     setItems([]);
     setOpenDropDown(false);
     inputRef.current?.clear();
-    console.log("selectedValue-----", selectedValue);
   };
 
   useEffect(() => {

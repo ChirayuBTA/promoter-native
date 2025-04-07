@@ -6,8 +6,6 @@ export async function authHeaders(
 ): Promise<HeadersInit> {
   // const token = localStorage.getItem("token");
   const token = await getAuthValue("token");
-  console.log("token--", token);
-
   return {
     "x-api-key": x_api_key,
     Authorization: `Bearer ${token}`,

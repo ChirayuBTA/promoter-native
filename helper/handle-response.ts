@@ -9,17 +9,15 @@ export async function handleResponse(response: Response) {
     if (data?.message === "Unauthorized: Invalid token") {
       await clearAuthData();
       await clearLocData();
-      router.push("/"); // Redirect to login page
+      router.replace("/"); // Redirect to login page
       // Alert.alert("Error", "You have been logged out.");
-      return Promise.reject(
-        new Error("You have been logged in on another device")
-      );
+      return Promise.reject(new Error("You have logged in on another device"));
     }
 
     if (data?.message === "Unauthorized: Invalid session") {
       await clearAuthData();
       await clearLocData();
-      router.push("/"); // Redirect to login page
+      router.replace("/"); // Redirect to login page
       // Alert.alert("Error", "You have been logged out.");
       return Promise.reject(new Error("Your sessions has expired"));
     }

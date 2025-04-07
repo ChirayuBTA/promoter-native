@@ -3,7 +3,12 @@ import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, usePathname } from "expo-router";
 import { LogOut } from "lucide-react-native";
-import { clearAuthData, clearLocData } from "@/utils/storage";
+import {
+  clearAuthData,
+  clearLocData,
+  getLocData,
+  getAuthData,
+} from "@/utils/storage";
 import DropdownMenu from "./DropdownMenu";
 import { MenuTrigger } from "./MenuTrigger";
 import { MenuOption } from "./MenuOption";
@@ -37,6 +42,7 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
         onPress: async () => {
           await clearLocData();
           await clearAuthData();
+
           router.replace("/");
         },
       },
@@ -72,7 +78,7 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
           {/* {pathname !== "/dashboard" && ( */}
           <TouchableOpacity
             style={{ marginRight: 16 }}
-            onPress={() => router.push("/dashboard")}
+            onPress={() => router.replace("/dashboard")}
           >
             <Ionicons name="home-outline" size={28} color="black" />
           </TouchableOpacity>

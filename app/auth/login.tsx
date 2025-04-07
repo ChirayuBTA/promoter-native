@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,12 +14,49 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { api } from "@/utils/api"; // Import the API
+import { api } from "@/utils/api";
+import { getAuthValue, getLocValue } from "@/utils/storage";
 
 const LoginScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  //Storage Data state
+  const [token, setToken] = useState<string | null>(null);
+  const [promoterId, setPromoterId] = useState<string | null>(null);
+  const [activityLocId, setActivityLocId] = useState<string | null>(null);
+
   const router = useRouter();
+  // Get stored values from authStorage
+  const getStoredData = async () => {
+    try {
+      const storedToken = await getAuthValue("token");
+      const storedPromoterId = await getAuthValue("promoterId");
+      const storedActivityLocId = await getLocValue("activityLocId");
+
+      if (storedToken) setToken(storedToken);
+      if (storedPromoterId) setPromoterId(storedPromoterId);
+      if (storedActivityLocId) setActivityLocId(storedActivityLocId);
+    } catch (err) {
+      // setError("Failed to fetch data from storage.");
+      console.log("Error: ", err);
+    }
+  };
+
+  useEffect(() => {
+    getStoredData(); // Get stored values on mount
+  }, []);
+
+  useEffect(() => {
+    if (token && promoterId && !activityLocId) {
+      router.replace("/location");
+    } else if (token && promoterId && activityLocId) {
+      router.replace("/dashboard");
+    }
+  }, [token, promoterId, activityLocId]);
+
+  console.log("token", token);
+  console.log("promoterId", promoterId);
+  console.log("activityLocId", activityLocId);
 
   // Handle sending OTP
   const sendOTP = async () => {
@@ -36,10 +73,8 @@ const LoginScreen = () => {
     api
       .sendOTP({ phone: phoneNumber })
       .then((response) => {
-        console.log("response---");
-
         if (response.success) {
-          router.push({
+          router.replace({
             pathname: "/auth/otp",
             params: { phoneNumber },
           });

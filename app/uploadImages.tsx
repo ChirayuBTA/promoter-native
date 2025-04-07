@@ -20,14 +20,14 @@ import { getLocValue } from "@/utils/storage";
 const CreateScreen = () => {
   const [images, setImages] = useState<string[]>([]); // Store multiple images
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [activityId, setActivityId] = useState("");
+  const [activityLocId, setActivityLocId] = useState("");
 
   const router = useRouter();
 
   const fetchActivityId = async () => {
     const societyId = await getLocValue("societyId");
 
-    setActivityId(societyId);
+    setActivityLocId(societyId);
   };
 
   useEffect(() => {
@@ -95,7 +95,7 @@ const CreateScreen = () => {
       )
     )
       .then(() => {
-        formData.append("activityLocId", activityId);
+        formData.append("activityLocId", activityLocId);
         return api.uploadImages(formData);
       })
       .then(({ success, message }) => {

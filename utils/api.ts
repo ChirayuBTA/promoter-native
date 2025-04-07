@@ -9,8 +9,6 @@ import { apiUrl } from "@/lib/apiConfig";
 
 export const api = {
   sendOTP: async function (body: ISendOTPRequestBody) {
-    console.log("body-", body);
-    console.log("JSON.stringify(body)-", JSON.stringify(body));
     const headers = await authHeaders();
 
     const reqOptions = {
@@ -32,7 +30,6 @@ export const api = {
     return fetch(`${apiUrl}/auth/verify-otp`, reqOptions).then(handleResponse);
   },
   createOrderEntry: async function (body: FormData) {
-    console.log(body);
     const headers = await formHeaders();
     const reqOptions = {
       method: "POST",
@@ -43,7 +40,6 @@ export const api = {
     return fetch(`${apiUrl}/order`, reqOptions).then(handleResponse);
   },
   uploadImages: async function (body: FormData) {
-    console.log(body);
     const headers = await imageHeaders();
     const reqOptions = {
       method: "POST",

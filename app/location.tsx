@@ -120,7 +120,6 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
     api
       .getSocities({ limit: 20, page: 1, search: societySearch, projectId })
       .then(({ data }) => {
-        console.log("response---", data);
         setSocietiesData(data || []);
         setSocieties(
           data?.map(({ id, name }: Society) => ({ key: id, value: name })) || []
@@ -159,12 +158,10 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
     // Store the activity ID if available
     if (selectedSocietyObj?.activity?.id) {
       setSelectedActivityId(selectedSocietyObj.activity.id);
-      console.log("Selected activity ID:", selectedSocietyObj.activity.id);
     }
   };
 
   const handleContinue = async () => {
-    console.log("COntinew", selectedCity, selectedSociety);
     if (selectedSociety) {
       Alert.alert(
         "Confirm Selection",
@@ -178,8 +175,8 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
               const locationData = {
                 cityId: selectedCity,
                 cityName: selectedCityName,
-                societyId: selectedSociety,
-                societyName: selectedSocietyName,
+                activityLocId: selectedSociety,
+                activityLocName: selectedSocietyName,
                 activityId: selectedActivityId,
               };
 
@@ -188,7 +185,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
               if (stored) {
                 console.log("Location data stored successfully:", locationData);
                 // Navigate to next screen
-                router.push("/dashboard");
+                router.replace("/dashboard");
                 // navigation.navigate("/dashboard");
               } else {
                 Alert.alert(
@@ -339,7 +336,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
                 }}
                 search={true}
                 searchPlaceholder="Type to search societies..."
-                disabled={!selectedCity}
+                disabledItemStyles={{ opacity: !selectedCity ? 0.5 : 1 }}
               />
             </View>
           )}

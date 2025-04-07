@@ -15,7 +15,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "../utils/api"; // Import API methods
 import { getAuthValue, getLocData, getLocValue } from "@/utils/storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomHeader from "@/components/CustomHeader";
 
 const CreateScreen = () => {
@@ -123,12 +122,9 @@ const CreateScreen = () => {
       type: "image/jpeg",
     } as any);
 
-    console.log("Sending formData with image:", image);
-
     api
       .createOrderEntry(formData)
       .then((response) => {
-        console.log("API Response:", response);
         Alert.alert(
           response?.success ? "Success" : "Error",
           response?.message || "Failed to create entry."
@@ -145,8 +141,6 @@ const CreateScreen = () => {
       })
       .finally(() => setIsLoading(false));
   };
-
-  console.log("authData--", storageData);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -175,9 +169,10 @@ const CreateScreen = () => {
           <TextInput
             className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
             placeholder="Enter phone number"
+            maxLength={10}
             keyboardType="phone-pad"
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ""))}
           />
 
           {/* Image Upload */}
