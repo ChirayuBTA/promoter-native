@@ -1,12 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
+import { Search, X } from "lucide-react-native";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  ActivityIndicator,
 } from "react-native";
 
 const SearchDropdown = ({
@@ -15,40 +18,55 @@ const SearchDropdown = ({
   onValueChange,
 }: {
   placeholder?: string;
-  fetchData: (query: string) => Promise<any[]>;
+  fetchData: (query: string, page: number) => Promise<any[]>;
   onValueChange: (value: string) => void;
 }) => {
   const [items, setItems] = useState<string[]>([]);
   const [text, setText] = useState("");
   const [filteredValues, setFilteredValues] = useState<string[]>([]);
   const [openDropDown, setOpenDropDown] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const inputRef = useRef<TextInput>(null);
 
-  const handleFocus = async () => {
-    try {
-      const data = await fetchData("");
-      const itemsList = data.map((item) => item.name);
-      setItems(itemsList);
-      setFilteredValues(itemsList);
-      setOpenDropDown(true);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+  const loadData = useCallback(
+    async (query: string, newPage = 1, append = false) => {
+      if (loading || (!hasMore && append)) return;
+
+      setLoading(true);
+      try {
+        const data = await fetchData(query, newPage);
+
+        if (append) {
+          setItems((prev) => [...prev, ...data]);
+          setFilteredValues((prev) => [...prev, ...data]);
+        } else {
+          setItems(data);
+          setFilteredValues(data);
+        }
+
+        setHasMore(data.length > 0);
+        setPage(newPage);
+        setOpenDropDown(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading, hasMore, fetchData]
+  );
+
+  const handleFocus = () => {
+    loadData(text, 1, false);
   };
 
-  const handleChangeText = async (input: string) => {
+  const handleChangeText = (input: string) => {
     setText(input);
     onValueChange(input);
-
-    try {
-      const data = await fetchData(input);
-      const itemsList = data;
-      setItems(itemsList);
-      setFilteredValues(itemsList);
-      setOpenDropDown(true);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+    setHasMore(true);
+    loadData(input, 1, false);
   };
 
   const handleSelectValue = (selectedValue: string) => {
@@ -57,7 +75,31 @@ const SearchDropdown = ({
     setFilteredValues([]);
     setItems([]);
     setOpenDropDown(false);
-    inputRef.current?.clear();
+    inputRef.current?.blur();
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+
+    if (isCloseToBottom && !loading && hasMore) {
+      loadData(text, page + 1, true);
+    }
+  };
+
+  const resetSearch = () => {
+    setText("");
+    setItems([]);
+    setFilteredValues([]);
+    setOpenDropDown(false);
+    setPage(1);
+    setHasMore(true);
+    inputRef.current?.blur();
+    onValueChange("");
+    // Optional: Reload full list on reset
+    // loadData("", 1, false);
   };
 
   useEffect(() => {
@@ -69,7 +111,8 @@ const SearchDropdown = ({
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{placeholder}</Text>
-      <View style={styles.inputContainer}>
+
+      <View style={styles.inputWrapper}>
         <TextInput
           ref={inputRef}
           style={styles.input}
@@ -79,28 +122,59 @@ const SearchDropdown = ({
           placeholderTextColor="#888"
           value={text}
         />
-        <Image
-          style={styles.icon}
-          source={{ uri: "https://example.com/path/to/your/image.png" }}
-        />
+        <TouchableOpacity onPress={resetSearch} style={styles.iconWrapper}>
+          {openDropDown || text.length > 0 ? (
+            <X color="#aaa" size={20} />
+          ) : (
+            <Search color="#aaa" size={20} />
+          )}
+        </TouchableOpacity>
       </View>
+
       {openDropDown && (
-        <View style={styles.dropdownWrapper}>
-          <ScrollView
-            style={styles.dropdownContainer}
-            nestedScrollEnabled={true}
+        <>
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => {
+              setOpenDropDown(false);
+              inputRef.current?.blur();
+            }}
           >
-            {filteredValues.map((value: any, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleSelectValue(value)}
-                style={styles.dropdownItem}
-              >
-                <Text style={styles.itemText}>{value.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+            <View />
+          </TouchableOpacity>
+
+          <View style={styles.dropdownWrapper}>
+            <ScrollView
+              style={styles.dropdownContainer}
+              nestedScrollEnabled
+              keyboardShouldPersistTaps="handled"
+              onScroll={handleScroll}
+              scrollEventThrottle={100}
+            >
+              {filteredValues.length > 0 ? (
+                filteredValues.map((item: any, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleSelectValue(item.name)}
+                    style={styles.dropdownItem}
+                  >
+                    <Text style={styles.itemText}>{item.name}</Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={styles.noResults}>
+                  <Text style={styles.noResultsText}>No records found</Text>
+                </View>
+              )}
+              {loading && (
+                <View style={styles.loader}>
+                  <ActivityIndicator size="small" color="#aaa" />
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </>
       )}
     </View>
   );
@@ -108,57 +182,75 @@ const SearchDropdown = ({
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    alignItems: "flex-start",
-    marginVertical: 8,
+    marginVertical: 10,
+    width: "100%",
   },
   label: {
-    fontWeight: "400",
     fontSize: 14,
-    color: "#FFF",
+    color: "#444",
+    marginBottom: 6,
   },
-  icon: {
-    position: "absolute",
-    right: 20,
-    top: "50%",
-    tintColor: "#888",
-  },
-  inputContainer: {
+  inputWrapper: {
     position: "relative",
-    width: 328,
+    justifyContent: "center",
   },
   input: {
-    backgroundColor: "#f0f0f0",
-    color: "#000",
+    backgroundColor: "#fff",
     borderRadius: 12,
-    marginTop: 8,
-    height: 48,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderColor: "#ccc",
-    borderBottomWidth: 1,
-    width: 328,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    fontSize: 16,
+    color: "#000",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  iconWrapper: {
+    position: "absolute",
+    right: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 20,
+    width: 20,
   },
   dropdownWrapper: {
     maxHeight: 200,
-    width: 328,
-    alignSelf: "center",
+    marginTop: 4,
+    borderRadius: 12,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    backgroundColor: "#fff",
+    overflow: "hidden",
   },
   dropdownContainer: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#ccc",
     width: "100%",
   },
   dropdownItem: {
     paddingVertical: 12,
     paddingHorizontal: 16,
+    borderBottomColor: "#f0f0f0",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
   },
   itemText: {
-    color: "#666",
+    fontSize: 16,
+    color: "#333",
+  },
+  noResults: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  noResultsText: {
+    fontSize: 14,
+    color: "#999",
+  },
+  loader: {
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

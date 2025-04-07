@@ -216,6 +216,21 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
     // }
   }, [societySearch]);
 
+  const handleSocietySelectByName = (societyName: string) => {
+    const selected = societiesData.find(
+      (s) => s.name.toLowerCase() === societyName.toLowerCase()
+    );
+
+    if (selected) {
+      setSelectedSociety(selected.id);
+      setSelectedSocietyName(selected.name);
+
+      if (selected.activity?.id) {
+        setSelectedActivityId(selected.activity.id);
+      }
+    }
+  };
+
   return (
     <SafeAreaView
       className="flex-1 bg-gray-100"
@@ -308,37 +323,31 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
               <ActivityIndicator size="small" color="#EF4444" />
             </View>
           ) : (
-            <View className="border border-gray-200 rounded-lg bg-gray-50">
-              <SelectList
-                setSelected={(val: string) => handleSocietySelect(val)}
-                data={societies}
-                save="key"
-                placeholder="Search for your society..."
-                boxStyles={{
-                  borderWidth: 0,
-                  backgroundColor: "transparent",
-                  height: 50,
-                }}
-                inputStyles={{
-                  fontSize: 16,
-                  color: "#1F2937",
-                }}
-                dropdownStyles={{
-                  borderColor: "#E5E7EB",
-                  backgroundColor: "white",
-                  maxHeight: 200,
-                }}
-                dropdownItemStyles={{
-                  paddingVertical: 12,
-                }}
-                dropdownTextStyles={{
-                  fontSize: 16,
-                }}
-                search={true}
-                searchPlaceholder="Type to search societies..."
-                disabledItemStyles={{ opacity: !selectedCity ? 0.5 : 1 }}
-              />
-            </View>
+            <SearchDropdown
+              placeholder="Search for your society..."
+              fetchData={async (query, page) => {
+                try {
+                  const { data } = await api.getSocities({
+                    limit: 20,
+                    page,
+                    search: query,
+                    projectId,
+                  });
+
+                  return data?.map(({ id, name }: any) => ({ id, name })) || [];
+                } catch (error: any) {
+                  Alert.alert(
+                    "Error",
+                    error.message ||
+                      "Failed to load societies. Please try again."
+                  );
+                  return [];
+                }
+              }}
+              onValueChange={(val: string) => {
+                handleSocietySelectByName(val);
+              }}
+            />
           )}
         </View>
         {/* )} */}
