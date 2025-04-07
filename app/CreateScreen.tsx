@@ -40,14 +40,14 @@ const CreateScreen = () => {
 
   const fetchAuthData = async () => {
     const activityId = await getLocValue("activityId");
-    const societyId = await getLocValue("societyId");
+    const activityLocId = await getLocValue("activityLocId");
     const projectId = await getAuthValue("projectId");
     const vendorId = await getAuthValue("vendorId");
     const promoterId = await getAuthValue("promoterId");
 
     setStorageData({
       activityId: activityId,
-      activityLocId: societyId,
+      activityLocId: activityLocId,
       promoterId: promoterId,
       vendorId: vendorId,
       projectId: projectId,
