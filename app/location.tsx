@@ -22,7 +22,12 @@ import {
 } from "lucide-react-native";
 import Constants from "expo-constants";
 import { api } from "@/utils/api";
-import { getAuthValue, storeAuthData, storeLocData } from "@/utils/storage";
+import {
+  getAuthValue,
+  getLocValue,
+  storeAuthData,
+  storeLocData,
+} from "@/utils/storage";
 import { useRouter } from "expo-router";
 import CustomHeader from "@/components/CustomHeader";
 import SearchDropdown from "@/components/SearchDropdown";
@@ -73,17 +78,20 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   const [selectedCityName, setSelectedCityName] = useState<string>("");
   const [selectedSocietyName, setSelectedSocietyName] = useState<string>("");
   const [projectId, setProjectId] = useState("");
+  const [cityId, setCityId] = useState("");
   const [currentLocation, setCurrentLocation] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchAuthData = async () => {
-    const projectId = await getAuthValue("projectId");
-
-    setProjectId(projectId);
+  const fetchStorageData = async () => {
+    const fetchedProjectId = await getAuthValue("projectId");
+    const fetchedCityId = await getLocValue("cityId");
+    console.log("cityId", fetchedCityId);
+    setProjectId(fetchedProjectId);
+    setCityId(fetchedCityId);
   };
 
   useEffect(() => {
-    fetchAuthData();
+    fetchStorageData();
   }, []);
 
   const fetchCurrentLocation = async () => {
@@ -151,11 +159,19 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
   //     .finally(() => setLoadingCities(false));
   // };
 
-  const fetchSocieties = (projectId: string) => {
+  const fetchSocieties = (projectId: string, cityId: string) => {
     setLoadingSocieties(true);
 
+    const params = {
+      limit: 20,
+      page: 1,
+      search: societySearch,
+      projectId,
+      cityId,
+    };
+
     api
-      .getSocities({ limit: 20, page: 1, search: societySearch, projectId })
+      .getSocities(params)
       .then(({ data }) => {
         setSocietiesData(data || []);
         setSocieties(
@@ -249,9 +265,9 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
 
   useEffect(() => {
     // if (selectedCity) {
-    fetchSocieties(projectId);
+    fetchSocieties(projectId, cityId);
     // }
-  }, [societySearch]);
+  }, [societySearch, cityId]);
 
   const handleSocietySelectByName = (societyName: string) => {
     const selected = societiesData.find(
@@ -381,6 +397,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
                     page,
                     search: query,
                     projectId,
+                    cityId,
                   });
 
                   return data?.map(({ id, name }: any) => ({ id, name })) || [];

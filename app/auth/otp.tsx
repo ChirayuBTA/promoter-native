@@ -14,7 +14,12 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { api } from "@/utils/api"; // Import API for OTP verification
-import { getAuthValue, getLocValue, storeAuthData } from "@/utils/storage";
+import {
+  getAuthValue,
+  getLocValue,
+  storeAuthData,
+  storeLocData,
+} from "@/utils/storage";
 
 const OtpScreen = () => {
   const { phoneNumber } = useLocalSearchParams();
@@ -74,7 +79,7 @@ const OtpScreen = () => {
 
     api
       .verifyOTP({ phone, otp })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.success) {
           return Alert.alert("Error", response.message || "Invalid OTP");
         }
@@ -85,14 +90,18 @@ const OtpScreen = () => {
           vendorId: response.promoter.vendorId,
           token: response.token,
         };
+        const locData = {
+          cityId: response.promoter.cityId,
+        };
 
-        return storeAuthData(authData).then(() => {
-          console.log("Auth data stored successfully:", authData);
-          router.replace("/location");
-        });
+        const authStored = await storeAuthData(authData);
+        const locStored = await storeLocData(locData);
+
+        console.log("Auth data stored successfully:", authStored, authData);
+        console.log("Loc data stored successfully:", locStored, locData);
+        router.replace("/location");
       })
       .catch((error) => {
-        // console.error("Error verifying OTP:", error);
         Alert.alert(
           "Error",
           error.message || "Failed to verify OTP. Please try again."
