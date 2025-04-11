@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, usePathname } from "expo-router";
 import { LogOut } from "lucide-react-native";
@@ -62,10 +62,14 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
     >
       {/* Logo */}
       <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Text style={{ fontSize: 24, fontWeight: "bold" }}>DIRECT</Text>
+        {/* <Text style={{ fontSize: 24, fontWeight: "bold" }}>DIRECT</Text>
         <Text style={{ fontSize: 24, fontWeight: "bold", color: "red" }}>
           X
-        </Text>
+        </Text> */}
+        <Image
+          source={require("@/assets/images/appLogo.png")}
+          style={{ width: 80, height: 40, resizeMode: "contain" }}
+        />
       </View>
 
       {isLocationScreen ? (
@@ -92,13 +96,26 @@ const CustomHeader = ({ isLocationScreen }: { isLocationScreen?: boolean }) => {
               </MenuTrigger>
             )}
           >
-            <MenuOption onSelect={handleResetSettings}>
+            <MenuOption
+              onSelect={handleResetSettings}
+              icon={<Ionicons name="refresh" size={20} color="black" />}
+            >
               Reset Settings
             </MenuOption>
-            <MenuOption onSelect={handleUploadImages}>
-              Society Images Upload
+
+            <MenuOption
+              onSelect={handleUploadImages}
+              icon={<Ionicons name="image" size={20} color="black" />}
+            >
+              Event Images Upload
             </MenuOption>
-            <MenuOption onSelect={handleLogout}>Logout</MenuOption>
+
+            <MenuOption
+              onSelect={handleLogout}
+              icon={<Ionicons name="log-out-outline" size={20} color="red" />}
+            >
+              Logout
+            </MenuOption>
           </DropdownMenu>
         </View>
       )}

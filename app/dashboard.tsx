@@ -263,7 +263,7 @@ const DashboardScreen = () => {
               </Text>
             </View>
           </View>
-          <View className="bg-red-600 h-16 w-16 rounded-lg items-center justify-center">
+          <View className="bg-primary h-16 w-16 rounded-lg items-center justify-center">
             <Text className="text-white text-3xl font-bold">
               {todayEntries.length}
             </Text>
@@ -275,7 +275,7 @@ const DashboardScreen = () => {
       <View className="flex-row justify-between mx-4">
         <TouchableOpacity
           className={`flex-1 py-4 ${
-            activeTab === "today" ? "border-b-2 border-red-600" : ""
+            activeTab === "today" ? "border-b-2 border-primary" : ""
           }`}
           onPress={() => setActiveTab("today")}
         >
@@ -290,7 +290,7 @@ const DashboardScreen = () => {
 
         <TouchableOpacity
           className={`flex-1 py-4 ${
-            activeTab === "total" ? "border-b-2 border-red-600" : ""
+            activeTab === "total" ? "border-b-2 border-primary" : ""
           }`}
           onPress={() => setActiveTab("total")}
         >
@@ -336,7 +336,7 @@ const DashboardScreen = () => {
               onPress={loadMoreToday}
               disabled={isLoadingMore}
               className={`py-4 rounded-lg items-center shadow-md ${
-                isLoadingMore ? "bg-gray-400" : "bg-red-600"
+                isLoadingMore ? "bg-gray-400" : "bg-primary"
               }`}
             >
               {isLoadingMore ? (
@@ -354,7 +354,7 @@ const DashboardScreen = () => {
               onPress={loadMoreTotal}
               disabled={isLoadingMore}
               className={`py-4 rounded-lg items-center mt-3 shadow-md ${
-                isLoadingMore ? "bg-gray-400" : "bg-red-600"
+                isLoadingMore ? "bg-gray-400" : "bg-primary"
               }`}
             >
               {isLoadingMore ? (
@@ -405,7 +405,7 @@ const DashboardScreen = () => {
       {/* Floating Action Button */}
       <TouchableOpacity
         onPress={() => router.push("/CreateScreen")}
-        className="absolute bottom-8 right-8 bg-red-500 rounded-full h-16 w-16 items-center justify-center shadow-lg"
+        className="absolute bottom-8 right-8 bg-primary rounded-full h-16 w-16 items-center justify-center shadow-lg"
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>

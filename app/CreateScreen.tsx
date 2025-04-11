@@ -144,8 +144,6 @@ const CreateScreen = () => {
 
     const formData = new FormData();
     Object.entries({
-      name,
-      phone,
       promoterId: storageData.promoterId,
       projectId: storageData.projectId,
       activityLocId: storageData.activityLocId,
@@ -153,17 +151,21 @@ const CreateScreen = () => {
       activityId: storageData.activityId,
     }).forEach(([key, value]) => formData.append(key, value));
 
+    name && formData.append("name", name);
+    phone && formData.append("phone", phone);
+
     formData.append("orderImage", {
       uri: orderImage,
       name: `photo_${Date.now()}.jpg`,
       type: "image/jpeg",
     } as any);
 
-    formData.append("profileImage", {
-      uri: profileImage,
-      name: `profile_${Date.now()}.jpg`,
-      type: "image/jpeg",
-    } as any);
+    profileImage &&
+      formData.append("profileImage", {
+        uri: profileImage,
+        name: `profile_${Date.now()}.jpg`,
+        type: "image/jpeg",
+      } as any);
     console.log("formData", formData);
 
     api
@@ -199,7 +201,7 @@ const CreateScreen = () => {
       >
         <View className="bg-white mx-4 my-4 rounded-3xl shadow-md p-6">
           <View className="mx-4 my-4 rounded-3xl p-6">
-            <Text className="text-2xl font-bold text-center text-red-500 mb-6">
+            <Text className="text-2xl font-bold text-center text-primary mb-6">
               Create New Entry
             </Text>
 
@@ -228,7 +230,7 @@ const CreateScreen = () => {
             {/* Image Upload */}
             <Text className="text-sm font-medium text-gray-700 mb-2">
               Order Image
-              <Text className="text-red-600"> *</Text>
+              <Text className="text-primary"> *</Text>
             </Text>
             <View className="flex-row gap-4 space-x-4 mb-4">
               {/* Select from Gallery */}
@@ -236,7 +238,7 @@ const CreateScreen = () => {
                 onPress={pickImage}
                 className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
               >
-                <Ionicons name="image" size={24} color="#E53E3E" />
+                <Ionicons name="image" size={24} color="#f89f22" />
                 <Text className="text-sm text-gray-600 mt-2">Select Photo</Text>
               </TouchableOpacity>
 
@@ -245,7 +247,7 @@ const CreateScreen = () => {
                 onPress={takePhoto}
                 className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
               >
-                <Ionicons name="camera" size={24} color="#E53E3E" />
+                <Ionicons name="camera" size={24} color="#f89f22" />
                 <Text className="text-sm text-gray-600 mt-2">Take Photo</Text>
               </TouchableOpacity>
             </View>
@@ -260,7 +262,7 @@ const CreateScreen = () => {
                 onPress={pickProfileImage}
                 className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
               >
-                <Ionicons name="image" size={24} color="#E53E3E" />
+                <Ionicons name="image" size={24} color="#f89f22" />
                 <Text className="text-sm text-gray-600 mt-2">Select Photo</Text>
               </TouchableOpacity>
 
@@ -269,7 +271,7 @@ const CreateScreen = () => {
                 onPress={takeProfilePhoto}
                 className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
               >
-                <Ionicons name="camera" size={24} color="#E53E3E" />
+                <Ionicons name="camera" size={24} color="#f89f22" />
                 <Text className="text-sm text-gray-600 mt-2">Take Photo</Text>
               </TouchableOpacity>
             </View>
@@ -319,7 +321,7 @@ const CreateScreen = () => {
               onPress={handleSubmit}
               disabled={isLoading}
               className={`w-full py-4 rounded-xl ${
-                orderImage ? "bg-red-500" : "bg-gray-300"
+                orderImage ? "bg-primary" : "bg-gray-300"
               } items-center shadow-md`}
             >
               {isLoading ? (

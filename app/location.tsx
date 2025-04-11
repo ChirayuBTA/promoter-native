@@ -312,7 +312,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
         {currentLocation && (
           <View className="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
             <View className="flex-row items-center mb-1">
-              <MapPin size={16} color="#EF4444" />
+              <MapPin size={16} color="#f89f22" />
               <Text className="text-gray-800 font-medium ml-2">
                 Your Current Location
               </Text>
@@ -375,7 +375,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
         {/* {selectedCity && ( */}
         <View className="bg-white rounded-xl shadow-sm p-4 mb-6">
           <View className="flex-row items-center mb-2">
-            <Building size={18} color="#EF4444" />
+            <Building size={18} color="#f89f22" />
             <Text className="text-gray-800 font-semibold text-lg ml-2">
               Society
             </Text>
@@ -383,7 +383,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
 
           {loadingSocieties ? (
             <View className="h-12 justify-center items-center">
-              <ActivityIndicator size="small" color="#EF4444" />
+              <ActivityIndicator size="small" color="#f89f22" />
             </View>
           ) : (
             <SearchDropdown
@@ -445,7 +445,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
         <TouchableOpacity
           onPress={handleContinue}
           className={`flex-row justify-center items-center p-4 rounded-lg ${
-            selectedSociety ? "bg-red-500" : "bg-gray-300"
+            selectedSociety ? "bg-primary" : "bg-gray-300"
           }`}
           disabled={!selectedSociety}
         >

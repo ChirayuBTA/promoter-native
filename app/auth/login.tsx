@@ -110,7 +110,7 @@ const LoginScreen = () => {
         {/* Content Section */}
         <View className="px-6 pt-14 flex-1 justify-center">
           <View className="rounded-b-[50px] justify-center items-center mb-6">
-            <View className="flex-row">
+            {/* <View className="flex-row">
               <Text
                 className="text-[38px] font-[900] tracking-tighter"
                 // style={{ fontSize: 40, fontWeight: "bold" }}
@@ -123,7 +123,11 @@ const LoginScreen = () => {
               >
                 X
               </Text>
-            </View>
+            </View> */}
+            <Image
+              source={require("@/assets/images/appLogo.png")}
+              style={{ width: 120, height: 40, resizeMode: "contain" }}
+            />
           </View>
           <Text className="text-2xl font-bold text-center mb-2 text-gray-800">
             Welcome Back!
@@ -164,7 +168,7 @@ const LoginScreen = () => {
           <TouchableOpacity
             className={`rounded-xl py-4 shadow-md ${
               phoneNumber.length === 10
-                ? "bg-red-500 active:bg-red-600"
+                ? "bg-primary active:bg-primary"
                 : "bg-gray-300"
             }`}
             onPress={sendOTP}
@@ -182,7 +186,7 @@ const LoginScreen = () => {
           {/* Progress Indicator */}
           <View className="flex-row justify-center mt-10 mb-6">
             <View className="flex-row items-center space-x-2">
-              <View className="h-2 w-8 rounded-full bg-red-500" />
+              <View className="h-2 w-8 rounded-full bg-primary" />
               <View className="h-2 w-8 rounded-full bg-gray-300" />
             </View>
           </View>
@@ -193,8 +197,8 @@ const LoginScreen = () => {
           {/* Terms & Policy */}
           <Text className="text-xs text-gray-500 text-center mb-6">
             By continuing, you agree to our{" "}
-            <Text className="text-red-500 font-medium">Terms of Services</Text>{" "}
-            & <Text className="text-red-500 font-medium">Privacy Policy</Text>
+            <Text className="text-primary font-medium">Terms of Services</Text>{" "}
+            & <Text className="text-primary font-medium">Privacy Policy</Text>
           </Text>
 
           {/* Support */}
@@ -205,7 +209,7 @@ const LoginScreen = () => {
             <Ionicons name="help-circle-outline" size={18} color="#6b7280" />
             <Text className="text-sm text-gray-500 ml-1">
               Need help?{" "}
-              <Text className="text-red-500 font-medium">Contact Support</Text>
+              <Text className="text-primary font-medium">Contact Support</Text>
             </Text>
           </TouchableOpacity>
         </View>

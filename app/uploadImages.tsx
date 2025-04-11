@@ -128,7 +128,7 @@ const CreateScreen = () => {
       <View className="bg-white mx-4 my-4 rounded-3xl shadow-md p-6">
         <View className="mx-4 my-4 rounded-3xl p-6">
           {/* Header */}
-          <Text className="text-2xl font-bold text-center text-red-500 mb-6">
+          <Text className="text-2xl font-bold text-center text-primary mb-6">
             Upload Event Images
           </Text>
 
@@ -142,7 +142,7 @@ const CreateScreen = () => {
               onPress={pickImages}
               className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
             >
-              <Ionicons name="image" size={24} color="#E53E3E" />
+              <Ionicons name="image" size={24} color="#f89f22" />
               <Text className="text-sm text-gray-600 mt-2">Select Photos</Text>
             </TouchableOpacity>
 
@@ -151,7 +151,7 @@ const CreateScreen = () => {
               onPress={takePhoto}
               className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
             >
-              <Ionicons name="camera" size={24} color="#E53E3E" />
+              <Ionicons name="camera" size={24} color="#f89f22" />
               <Text className="text-sm text-gray-600 mt-2">Take Photo</Text>
             </TouchableOpacity>
           </View>
@@ -184,7 +184,7 @@ const CreateScreen = () => {
             onPress={handleSubmit}
             disabled={isLoading}
             className={`w-full py-4 rounded-xl ${
-              images.length > 0 ? "bg-red-500" : "bg-gray-300"
+              images.length > 0 ? "bg-primary" : "bg-gray-300"
             } items-center shadow-md`}
           >
             {isLoading ? (
