@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }) => {
     activityLocId: locData?.activityLocId || null,
     activityLocName: locData?.activityLocName || null,
     activityId: locData?.activityId || null,
-    cityId: locData?.cityId || null,
-    cityName: locData?.cityName || null,
+    cityId: authData?.cityId || null,
+    cityName: authData?.cityName || null,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -25,9 +25,9 @@ const CreateScreen = () => {
   const router = useRouter();
 
   const fetchActivityId = async () => {
-    const societyId = await getLocValue("societyId");
+    const activityLocId = await getLocValue("activityLocId");
 
-    setActivityLocId(societyId);
+    setActivityLocId(activityLocId);
   };
 
   useEffect(() => {

@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   StatusBar,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -20,7 +21,8 @@ import CustomHeader from "@/components/CustomHeader";
 const CreateScreen = () => {
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [image, setImage] = useState<string | null>(null);
+  const [orderImage, setOrderImage] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [storageData, setStorageData] = useState<{
     activityId: string;
@@ -72,7 +74,7 @@ const CreateScreen = () => {
     });
 
     if (!result.canceled && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      setOrderImage(result.assets[0].uri);
     }
   };
 
@@ -90,16 +92,51 @@ const CreateScreen = () => {
     });
 
     if (!result.canceled && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      setOrderImage(result.assets[0].uri);
+    }
+  };
+
+  const pickProfileImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access gallery is required.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: false,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
+
+  const takeProfilePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      alert("Camera permission is required to take photos.");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: false,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setProfileImage(result.assets[0].uri);
     }
   };
 
   // Handle Submit
   const handleSubmit = () => {
-    if (![name, phone, image].every(Boolean)) {
+    if (![orderImage].every(Boolean)) {
       return Alert.alert(
         "Error",
-        "Please fill all fields and upload an image."
+        // "Please fill all fields and upload an image."
+        "Please upload order image."
       );
     }
 
@@ -116,11 +153,18 @@ const CreateScreen = () => {
       activityId: storageData.activityId,
     }).forEach(([key, value]) => formData.append(key, value));
 
-    formData.append("image", {
-      uri: image,
+    formData.append("orderImage", {
+      uri: orderImage,
       name: `photo_${Date.now()}.jpg`,
       type: "image/jpeg",
     } as any);
+
+    formData.append("profileImage", {
+      uri: profileImage,
+      name: `profile_${Date.now()}.jpg`,
+      type: "image/jpeg",
+    } as any);
+    console.log("formData", formData);
 
     api
       .createOrderEntry(formData)
@@ -132,7 +176,7 @@ const CreateScreen = () => {
         if (response?.success) router.replace("/dashboard");
       })
       .catch((error) => {
-        // console.error("Upload Error:", error);
+        console.error("Upload Error:", error.message);
         Alert.alert(
           "Error",
           error.message ||
@@ -149,94 +193,152 @@ const CreateScreen = () => {
       <CustomHeader />
 
       {/* Main Card */}
-      <View className="bg-white mx-4 my-4 rounded-3xl shadow-md p-6">
-        <View className="mx-4 my-4 rounded-3xl p-6">
-          <Text className="text-2xl font-bold text-center text-red-500 mb-6">
-            Create New Entry
-          </Text>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="bg-white mx-4 my-4 rounded-3xl shadow-md p-6">
+          <View className="mx-4 my-4 rounded-3xl p-6">
+            <Text className="text-2xl font-bold text-center text-red-500 mb-6">
+              Create New Entry
+            </Text>
 
-          {/* Name Input */}
-          <Text className="text-sm font-medium text-gray-700 mb-2">Name</Text>
-          <TextInput
-            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
-            placeholder="Enter name"
-            value={name}
-            onChangeText={setName}
-          />
+            {/* Name Input */}
+            <Text className="text-sm font-medium text-gray-700 mb-2">Name</Text>
+            <TextInput
+              className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
+              placeholder="Enter name"
+              value={name}
+              onChangeText={setName}
+            />
 
-          {/* Phone Input */}
-          <Text className="text-sm font-medium text-gray-700 mb-2">Phone</Text>
-          <TextInput
-            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
-            placeholder="Enter phone number"
-            maxLength={10}
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ""))}
-          />
+            {/* Phone Input */}
+            <Text className="text-sm font-medium text-gray-700 mb-2">
+              Phone
+            </Text>
+            <TextInput
+              className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 mb-4 text-lg text-black"
+              placeholder="Enter phone number"
+              maxLength={10}
+              keyboardType="phone-pad"
+              value={phone}
+              onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ""))}
+            />
 
-          {/* Image Upload */}
-          <Text className="text-sm font-medium text-gray-700 mb-2">Photo</Text>
-          <View className="flex-row gap-4 space-x-4 mb-4">
-            {/* Select from Gallery */}
-            <TouchableOpacity
-              onPress={pickImage}
-              className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
-            >
-              <Ionicons name="image" size={24} color="#E53E3E" />
-              <Text className="text-sm text-gray-600 mt-2">Select Photo</Text>
-            </TouchableOpacity>
-
-            {/* Take a Photo */}
-            <TouchableOpacity
-              onPress={takePhoto}
-              className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
-            >
-              <Ionicons name="camera" size={24} color="#E53E3E" />
-              <Text className="text-sm text-gray-600 mt-2">Take Photo</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Preview Image */}
-          {image && (
-            <View className="items-center mb-4">
-              <Image
-                source={{ uri: image }}
-                className="w-32 h-32 rounded-xl border border-gray-300"
-              />
+            {/* Image Upload */}
+            <Text className="text-sm font-medium text-gray-700 mb-2">
+              Order Image
+              <Text className="text-red-600"> *</Text>
+            </Text>
+            <View className="flex-row gap-4 space-x-4 mb-4">
+              {/* Select from Gallery */}
               <TouchableOpacity
-                onPress={() => setImage(null)}
-                className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
+                onPress={pickImage}
+                className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
               >
-                <Ionicons name="close" size={16} color="#fff" />
+                <Ionicons name="image" size={24} color="#E53E3E" />
+                <Text className="text-sm text-gray-600 mt-2">Select Photo</Text>
+              </TouchableOpacity>
+
+              {/* Take a Photo */}
+              <TouchableOpacity
+                onPress={takePhoto}
+                className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
+              >
+                <Ionicons name="camera" size={24} color="#E53E3E" />
+                <Text className="text-sm text-gray-600 mt-2">Take Photo</Text>
               </TouchableOpacity>
             </View>
-          )}
 
-          {/* Submit Button */}
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={isLoading}
-            className={`w-full py-4 rounded-xl ${
-              name && phone && image ? "bg-red-500" : "bg-gray-300"
-            } items-center shadow-md`}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text className="text-white text-lg font-semibold">Submit</Text>
-            )}
-          </TouchableOpacity>
+            {/* Profile Image Upload */}
+            <Text className="text-sm font-medium text-gray-700 mb-2">
+              Profile Image
+            </Text>
+            <View className="flex-row gap-4 space-x-4 mb-4">
+              {/* Select Profile Image */}
+              <TouchableOpacity
+                onPress={pickProfileImage}
+                className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
+              >
+                <Ionicons name="image" size={24} color="#E53E3E" />
+                <Text className="text-sm text-gray-600 mt-2">Select Photo</Text>
+              </TouchableOpacity>
 
-          {/* Cancel Button */}
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="w-full py-4 rounded-xl bg-white border border-gray-300 items-center mt-4 shadow-sm"
-          >
-            <Text className="text-gray-700 text-lg font-medium">Cancel</Text>
-          </TouchableOpacity>
+              {/* Take Profile Photo */}
+              <TouchableOpacity
+                onPress={takeProfilePhoto}
+                className="flex-1 items-center justify-center bg-white border border-gray-300 rounded-xl p-4 shadow-sm"
+              >
+                <Ionicons name="camera" size={24} color="#E53E3E" />
+                <Text className="text-sm text-gray-600 mt-2">Take Photo</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className="flex-row justify-evenly space-x-4 mb-4">
+              {/* Preview Image */}
+              {orderImage && (
+                <View className="items-center mb-4">
+                  <Image
+                    source={{ uri: orderImage }}
+                    className="w-32 h-32 rounded-xl border border-gray-300"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setOrderImage(null)}
+                    className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
+                  >
+                    <Ionicons name="close" size={16} color="#fff" />
+                  </TouchableOpacity>
+                  <Text className="text-sm text-gray-600 mt-2">
+                    Order Image
+                  </Text>
+                </View>
+              )}
+
+              {/* Preview Profile Image */}
+              {profileImage && (
+                <View className="items-center mb-4">
+                  <Image
+                    source={{ uri: profileImage }}
+                    className="w-32 h-32 rounded-xl border border-gray-300"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setProfileImage(null)}
+                    className="absolute top-0 right-0 bg-red-500 rounded-full p-1"
+                  >
+                    <Ionicons name="close" size={16} color="#fff" />
+                  </TouchableOpacity>
+                  <Text className="text-sm text-gray-600 mt-2">
+                    Profile Image
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={isLoading}
+              className={`w-full py-4 rounded-xl ${
+                orderImage ? "bg-red-500" : "bg-gray-300"
+              } items-center shadow-md`}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="text-white text-lg font-semibold">Submit</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="w-full py-4 rounded-xl bg-white border border-gray-300 items-center mt-4 shadow-sm"
+            >
+              <Text className="text-gray-700 text-lg font-medium">Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

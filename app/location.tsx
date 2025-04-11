@@ -84,7 +84,7 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
 
   const fetchStorageData = async () => {
     const fetchedProjectId = await getAuthValue("projectId");
-    const fetchedCityId = await getLocValue("cityId");
+    const fetchedCityId = await getAuthValue("cityId");
     console.log("cityId", fetchedCityId);
     setProjectId(fetchedProjectId);
     setCityId(fetchedCityId);
@@ -94,40 +94,40 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
     fetchStorageData();
   }, []);
 
-  const fetchCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission denied", "Location permission is required.");
-        return;
-      }
+  // const fetchCurrentLocation = async () => {
+  //   try {
+  //     const { status } = await Location.requestForegroundPermissionsAsync();
+  //     if (status !== "granted") {
+  //       Alert.alert("Permission denied", "Location permission is required.");
+  //       return;
+  //     }
 
-      const location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = location.coords;
+  //     const location = await Location.getCurrentPositionAsync({});
+  //     const { latitude, longitude } = location.coords;
 
-      const address = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
+  //     const address = await Location.reverseGeocodeAsync({
+  //       latitude,
+  //       longitude,
+  //     });
 
-      if (address.length > 0) {
-        const { city, district, region, country } = address[0];
-        const locationString = `${district || ""}, ${city || ""}, ${
-          region || ""
-        }, ${country || ""}`;
-        setCurrentLocation(locationString);
-      } else {
-        setCurrentLocation(`Lat: ${latitude}, Lon: ${longitude}`);
-      }
-    } catch (error) {
-      console.log("Error fetching location:", error);
-      Alert.alert("Error", "Failed to fetch location.");
-    }
-  };
+  //     if (address.length > 0) {
+  //       const { city, district, region, country } = address[0];
+  //       const locationString = `${district || ""}, ${city || ""}, ${
+  //         region || ""
+  //       }, ${country || ""}`;
+  //       setCurrentLocation(locationString);
+  //     } else {
+  //       setCurrentLocation(`Lat: ${latitude}, Lon: ${longitude}`);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching location:", error);
+  //     Alert.alert("Error", "Failed to fetch location.");
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchCurrentLocation();
-  }, []);
+  // useEffect(() => {
+  //   fetchCurrentLocation();
+  // }, []);
 
   // Get status bar height
   const statusBarHeight =
@@ -226,8 +226,6 @@ export default function LocationScreen({ navigation }: LocationScreenProps) {
             onPress: async () => {
               // Store the selected society and activity IDs
               const locationData = {
-                cityId: selectedCity,
-                cityName: selectedCityName,
                 activityLocId: selectedSociety,
                 activityLocName: selectedSocietyName,
                 activityId: selectedActivityId,

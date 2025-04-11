@@ -90,7 +90,9 @@ export const clearAuthData = async () => {
 // Clear location data (logout)
 export const clearLocData = async () => {
   try {
-    await AsyncStorage.removeItem(LOC_DATA_KEY);
+    await AsyncStorage.removeItem("activityLocId");
+    await AsyncStorage.removeItem("activityLocName");
+    await AsyncStorage.removeItem("activityId");
     return true;
   } catch (error) {
     console.error("Error clearing location data:", error);

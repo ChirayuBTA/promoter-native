@@ -24,6 +24,7 @@ const LoginScreen = () => {
   const [token, setToken] = useState<string | null>(null);
   const [promoterId, setPromoterId] = useState<string | null>(null);
   const [activityLocId, setActivityLocId] = useState<string | null>(null);
+  const [cityId, setCityId] = useState<string | null>(null);
 
   const router = useRouter();
   // Get stored values from authStorage
@@ -31,11 +32,13 @@ const LoginScreen = () => {
     try {
       const storedToken = await getAuthValue("token");
       const storedPromoterId = await getAuthValue("promoterId");
+      const storedCityId = await getAuthValue("cityId");
       const storedActivityLocId = await getLocValue("activityLocId");
 
       if (storedToken) setToken(storedToken);
       if (storedPromoterId) setPromoterId(storedPromoterId);
       if (storedActivityLocId) setActivityLocId(storedActivityLocId);
+      if (storedCityId) setCityId(storedCityId);
     } catch (err) {
       // setError("Failed to fetch data from storage.");
       console.log("Error: ", err);
@@ -57,6 +60,7 @@ const LoginScreen = () => {
   console.log("token", token);
   console.log("promoterId", promoterId);
   console.log("activityLocId", activityLocId);
+  console.log("cityId", cityId);
 
   // Handle sending OTP
   const sendOTP = async () => {

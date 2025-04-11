@@ -52,6 +52,7 @@ const DashboardScreen = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [todaysTotalCount, setTodaysTotalCount] = useState(0);
   const [totalTotalCount, setTotalTotalCount] = useState(0);
+  const [cityId, setCityId] = useState(null);
 
   const router = useRouter();
   const currentDate = format(new Date(), "EEEE, MMMM d, yyyy");
@@ -68,10 +69,12 @@ const DashboardScreen = () => {
       const storedPromoterId = await getAuthValue("promoterId");
       const storedActivityLocId = await getLocValue("activityLocId");
       const storedActivityLocName = await getLocValue("activityLocName");
+      const storedCityId = await getAuthValue("cityId");
 
       if (storedPromoterId) setPromoterId(storedPromoterId);
       if (storedActivityLocName) setActivityLocName(storedActivityLocName);
       if (storedActivityLocId) setActivityLocId(storedActivityLocId);
+      if (storedCityId) setCityId(storedCityId);
     } catch (err) {
       // setError("Failed to fetch data from storage.");
       console.log("Error: ", err);
@@ -81,7 +84,9 @@ const DashboardScreen = () => {
   useEffect(() => {
     getStoredData(); // Get stored values on mount
   }, []);
-
+  useEffect(() => {
+    console.log("cityId", cityId);
+  }, [cityId]);
   // Fetch dashboard data with query parameters
   const fetchData = (isLoadMore = false) => {
     if (!activityLocId || !promoterId) return;
@@ -168,22 +173,38 @@ const DashboardScreen = () => {
             </View>
           )}
         </View>
-
-        {/* Order Image on Right */}
-        {item.orderImage && (
-          <TouchableOpacity
-            onPress={() => {
-              setSelectedImage(item.orderImage);
-              setModalVisible(true);
-            }}
-          >
-            <Image
-              source={{ uri: item.orderImage }}
-              className="w-16 h-16 rounded-lg"
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        )}
+        <View className="flex-row gap-2 justify-end">
+          {/* Profile Image on Right */}
+          {item.profileImage && (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedImage(item.profileImage);
+                setModalVisible(true);
+              }}
+            >
+              <Image
+                source={{ uri: item.profileImage }}
+                className="w-16 h-16 rounded-lg"
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          )}
+          {/* Order Image on Right */}
+          {item.orderImage && (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedImage(item.orderImage);
+                setModalVisible(true);
+              }}
+            >
+              <Image
+                source={{ uri: item.orderImage }}
+                className="w-16 h-16 rounded-lg"
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <View className="space-y-2">

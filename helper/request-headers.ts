@@ -41,7 +41,7 @@ export async function formHeaders(
   isMultipartData: boolean = false
 ): Promise<HeadersInit> {
   const token = await getAuthValue("token");
-  console.log("token--", token);
+
   return {
     "x-api-key": x_api_key,
     Authorization: `Bearer ${token}`,

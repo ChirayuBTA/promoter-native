@@ -89,16 +89,12 @@ const OtpScreen = () => {
           promoterId: response.promoter.id,
           vendorId: response.promoter.vendorId,
           token: response.token,
-        };
-        const locData = {
           cityId: response.promoter.cityId,
         };
 
         const authStored = await storeAuthData(authData);
-        const locStored = await storeLocData(locData);
 
         console.log("Auth data stored successfully:", authStored, authData);
-        console.log("Loc data stored successfully:", locStored, locData);
         router.replace("/location");
       })
       .catch((error) => {
