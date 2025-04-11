@@ -9,7 +9,6 @@ import {
   Platform,
   Image,
   Modal,
-  TouchableWithoutFeedback,
   ActivityIndicator,
   Alert,
 } from "react-native";
@@ -76,7 +75,6 @@ const DashboardScreen = () => {
       if (storedActivityLocId) setActivityLocId(storedActivityLocId);
       if (storedCityId) setCityId(storedCityId);
     } catch (err) {
-      // setError("Failed to fetch data from storage.");
       console.log("Error: ", err);
     }
   };
@@ -84,9 +82,11 @@ const DashboardScreen = () => {
   useEffect(() => {
     getStoredData(); // Get stored values on mount
   }, []);
+
   useEffect(() => {
     console.log("cityId", cityId);
   }, [cityId]);
+
   // Fetch dashboard data with query parameters
   const fetchData = (isLoadMore = false) => {
     if (!activityLocId || !promoterId) return;
@@ -231,6 +231,56 @@ const DashboardScreen = () => {
     </View>
   );
 
+  // Render footer with Load More button
+  const renderFooter = () => {
+    const showTodayLoadMore =
+      activeTab === "today" && todaysTotalCount > todayEntries.length;
+    const showTotalLoadMore =
+      activeTab === "total" && totalTotalCount > totalEntries.length;
+
+    if (!showTodayLoadMore && !showTotalLoadMore) return null;
+
+    return (
+      <View className="mx-4 my-2">
+        {showTodayLoadMore && (
+          <TouchableOpacity
+            onPress={loadMoreToday}
+            disabled={isLoadingMore}
+            className={`py-4 rounded-lg items-center shadow-md ${
+              isLoadingMore ? "bg-gray-400" : "bg-primary"
+            }`}
+          >
+            {isLoadingMore ? (
+              <ActivityIndicator size="small" color="#ffffff" />
+            ) : (
+              <Text className="text-white text-lg font-semibold">
+                Load More
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
+
+        {showTotalLoadMore && (
+          <TouchableOpacity
+            onPress={loadMoreTotal}
+            disabled={isLoadingMore}
+            className={`py-4 rounded-lg items-center mt-3 shadow-md ${
+              isLoadingMore ? "bg-gray-400" : "bg-primary"
+            }`}
+          >
+            {isLoadingMore ? (
+              <ActivityIndicator size="small" color="#ffffff" />
+            ) : (
+              <Text className="text-white text-lg font-semibold">
+                Load More
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView
       className="flex-1 bg-gray-100"
@@ -265,7 +315,7 @@ const DashboardScreen = () => {
           </View>
           <View className="bg-primary h-16 w-16 rounded-lg items-center justify-center">
             <Text className="text-white text-3xl font-bold">
-              {todayEntries.length}
+              {todaysTotalCount}
             </Text>
           </View>
         </View>
@@ -318,56 +368,17 @@ const DashboardScreen = () => {
           <FlatList
             data={activeTab === "today" ? todayEntries : totalEntries}
             renderItem={renderEntryItem}
-            keyExtractor={(item) => item.id.toString()} // Ensure ID is a string
+            keyExtractor={(item) => item.id.toString()}
             ListEmptyComponent={() => (
               <Text className="text-center text-gray-500 mt-4">
                 No entries available
               </Text>
             )}
+            ListFooterComponent={renderFooter}
+            contentContainerStyle={{ paddingBottom: 80 }} // Add padding to ensure the footer is visible
           />
         )}
       </View>
-
-      {/* Load More Button */}
-      {!loading && (
-        <View className="mx-4 my-2">
-          {activeTab === "today" && todaysTotalCount > todayEntries.length && (
-            <TouchableOpacity
-              onPress={loadMoreToday}
-              disabled={isLoadingMore}
-              className={`py-4 rounded-lg items-center shadow-md ${
-                isLoadingMore ? "bg-gray-400" : "bg-primary"
-              }`}
-            >
-              {isLoadingMore ? (
-                <ActivityIndicator size="small" color="#ffffff" />
-              ) : (
-                <Text className="text-white text-lg font-semibold">
-                  Load More
-                </Text>
-              )}
-            </TouchableOpacity>
-          )}
-
-          {activeTab === "total" && totalTotalCount > totalEntries.length && (
-            <TouchableOpacity
-              onPress={loadMoreTotal}
-              disabled={isLoadingMore}
-              className={`py-4 rounded-lg items-center mt-3 shadow-md ${
-                isLoadingMore ? "bg-gray-400" : "bg-primary"
-              }`}
-            >
-              {isLoadingMore ? (
-                <ActivityIndicator size="small" color="#ffffff" />
-              ) : (
-                <Text className="text-white text-lg font-semibold">
-                  Load More
-                </Text>
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
 
       {/* Full-Screen Image Modal */}
       <Modal
